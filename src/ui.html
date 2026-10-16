@@ -298,7 +298,7 @@ async function loadSummary() {
   $('#statusPill').textContent = SUMMARY.waiting ? `${SUMMARY.waiting} to post now` : `${SUMMARY.scheduled} scheduled`;
   const b = [];
   if (!SUMMARY.mediaReady) b.push(`<div class="banner bad">Media storage (R2) isn’t connected, so uploads won’t work. See SETUP.md step 1.</div>`);
-  if (!SUMMARY.gmailReady) b.push(`<div class="banner warn">Reminder emails are off until Gmail is connected. See SETUP.md step 3. Scheduled posts still show in the Queue.</div>`);
+  if (!SUMMARY.emailReady) b.push(`<div class="banner warn">Reminder emails are off (email isn’t set up). Scheduled posts still show in the Queue.</div>`);
   if (SUMMARY.attention) b.push(`<div class="banner bad">${SUMMARY.attention} post${SUMMARY.attention > 1 ? 's need' : ' needs'} attention. <a href="#queue" onclick="showTab('queue')">Open the Queue</a></div>`);
   $('#banners').innerHTML = b.join('');
 }
@@ -1195,12 +1195,12 @@ async function renderSettings() {
     <div class="card">
       <h3>Connections</h3>
       <ul class="checks" style="margin-top:8px">
-        <li class="${SUMMARY.gmailReady ? 'ok' : 'err'}"><span class="ic">${SUMMARY.gmailReady ? '✓' : '!'}</span><span>Reminder emails ${SUMMARY.gmailReady ? `go to ${esc(SUMMARY.notifyEmail)}` : 'are off. Add the GMAIL_* secrets (SETUP.md step 3).'}</span></li>
+        <li class="${SUMMARY.emailReady ? 'ok' : 'err'}"><span class="ic">${SUMMARY.emailReady ? '✓' : '!'}</span><span>Reminder emails ${SUMMARY.emailReady ? `go to ${esc(SUMMARY.notifyEmail)}` : 'are off (email isn’t set up)'}</span></li>
         <li class="${SUMMARY.mediaReady ? 'ok' : 'err'}"><span class="ic">${SUMMARY.mediaReady ? '✓' : '!'}</span><span>Media storage (R2) ${SUMMARY.mediaReady ? 'connected' : 'not connected (SETUP.md step 1)'}</span></li>
         <li class="warn"><span class="ic">i</span><span>Instagram auto publishing and the Canva picker arrive in Phases 2–3.</span></li>
         <li class="${s._last_reminder_run ? 'ok' : 'warn'}"><span class="ic">${s._last_reminder_run ? '✓' : 'i'}</span><span>Reminder check ${s._last_reminder_run ? `last ran ${new Date(s._last_reminder_run).toLocaleString('en-US', { timeZone: TZ() })}` : 'hasn’t run yet (runs every 5 minutes once deployed)'}</span></li>
       </ul>
-      <div class="row" style="margin-top:10px"><button class="btn sm quiet" id="testEmail" ${SUMMARY.gmailReady ? '' : 'disabled'}>Send a test reminder</button><button class="btn sm quiet" id="runNow">Check for due posts now</button></div>
+      <div class="row" style="margin-top:10px"><button class="btn sm quiet" id="testEmail" ${SUMMARY.emailReady ? '' : 'disabled'}>Send a test reminder</button><button class="btn sm quiet" id="runNow">Check for due posts now</button></div>
     </div>
     <div class="card">
       <h3>Posting defaults</h3>

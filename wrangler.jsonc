@@ -26,19 +26,21 @@
   // Every 5 minutes: send reminders for posts that are due.
   "triggers": { "crons": ["*/5 * * * *"] },
 
+  // Reminder emails through Cloudflare Email Routing (already set up on thecannizzos.com for the finance dashboard).
+  "send_email": [{ "name": "SEND_EMAIL" }],
+
   "vars": {
     "APP_URL": "https://content.thecannizzos.com",
     "TIMEZONE": "America/New_York",
-    // Reminders are sent from this Gmail account (same one the outreach app uses) to NOTIFY_EMAIL.
-    "SENDER_EMAIL": "hello@growthopedia.com",
-    "SENDER_NAME": "Growthopedia Content",
+    // Reminder emails: sent from an address on thecannizzos.com to your verified address.
+    "EMAIL_FROM": "Growthopedia Content <content@thecannizzos.com>",
     "NOTIFY_EMAIL": "jen.cannizzo@growthopedia.com",
     // Optional comma-separated list to narrow who can use the app beyond your Access policy.
     "ALLOWED_EMAILS": "",
     // SETUP.md step 5: with both filled in, the app checks Access's signed token on every request.
-    "ACCESS_TEAM_DOMAIN": "",
+    "ACCESS_TEAM_DOMAIN": "growthopedia.cloudflareaccess.com",
     "ACCESS_AUD": ""
   }
   // Secrets (Cloudflare → Workers → content → Settings → Variables and Secrets):
-  //   GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REFRESH_TOKEN  — copy the same three values from the outreach worker
+  //   ANTHROPIC_API_KEY — used by Claude drafting (Phase 3)
 }

@@ -8,7 +8,7 @@ import KIT_PAGE from './kit.html';
 import SCHEMA from '../schema.sql';
 import { POST_TYPES, TYPE_LABEL, checkPost, checkBlog, blockingFailures, fullCaption, schemaFor, postUrl, slugify, links, isInternal, cleanHtml } from './rules.js';
 import { toSql, nowSql, parseUtc, zonedToUtc, localDate } from './time.js';
-import { sendEmail, gmailReady } from './gmail.js';
+import { sendEmail, emailReady } from './email.js';
 import { signedInEmail } from './access.js';
 
 let schemaReady = false;
@@ -251,7 +251,7 @@ async function summary(env) {
     attention: attention.n,
     scheduled: scheduled.n,
     blogsDue: blogsDue.n,
-    gmailReady: gmailReady(env),
+    emailReady: emailReady(env),
     mediaReady: Boolean(env.MEDIA),
     notifyEmail: env.NOTIFY_EMAIL || '',
     authorBioSet: Boolean((settings.author_bio || '').trim()),

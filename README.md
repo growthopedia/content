@@ -16,7 +16,7 @@ posts are checked against SEO and AI-search rules and get a Squarespace Paste ki
 | `src/post.html` | Mobile post page the reminder email links to (`/p/<id>`) |
 | `src/kit.html` | Squarespace Paste kit (`/kit/<id>`) |
 | `src/access.js` | Cloudflare Access token check |
-| `src/gmail.js` | Sends reminder emails |
+| `src/email.js` | Sends reminder emails (Cloudflare Email Routing) |
 | `schema.sql` | Database tables (created automatically) |
 | `test/` | `npm test` |
 

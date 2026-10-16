@@ -1,7 +1,7 @@
 # Setup
 
 The app lives at **https://content.thecannizzos.com**, behind your Cloudflare Access login.
-Every push to `main` redeploys it through Cloudflare Workers Builds, the same way as the outreach app.
+Every push to `main` redeploys it through Cloudflare Workers Builds.
 
 Already done: the `content` Worker, the content.thecannizzos.com domain, and the D1 database (its ID is in `wrangler.jsonc`).
 
@@ -21,27 +21,9 @@ If Cloudflare asks you to turn on R2 first, it may ask for a payment method. Che
 3. Build command: leave empty. Deploy command: `npx wrangler deploy`.
 4. Save. The first deploy starts on its own. When it finishes, the workers.dev address is switched off, so the app is only reachable at content.thecannizzos.com.
 
-## 3. Reminder emails (Gmail)
-Reminders come from hello@growthopedia.com to jen.cannizzo@growthopedia.com, using the same Google login as the outreach app.
-Cloudflare hides secret values after they're saved, so make a fresh token. In Terminal:
-
-```
-cd ~/outreach
-git pull
-python3 tools/get_gmail_token.py PASTE_CLIENT_ID PASTE_CLIENT_SECRET
-```
-
-The Client ID and Client secret are in console.cloud.google.com → APIs & Services → Credentials → the OAuth client you made for outreach.
-A browser opens. Sign in as **hello@growthopedia.com** and allow. Terminal prints the token. The outreach app keeps working with its own token.
-
-Then Cloudflare → Workers & Pages → `content` → **Settings** → **Variables and Secrets** → **Add**, type **Secret**, three times:
-
-| Name | Value |
-|---|---|
-| `GMAIL_CLIENT_ID` | Client ID |
-| `GMAIL_CLIENT_SECRET` | Client secret |
-| `GMAIL_REFRESH_TOKEN` | the token Terminal printed |
-
+## 3. Reminder emails
+Nothing to do. Reminders go through Cloudflare Email Routing on thecannizzos.com, the same setup the finance dashboard
+uses: from content@thecannizzos.com to jen.cannizzo@growthopedia.com (already a verified address).
 Check it: open the app → **Settings** → **Send a test reminder**.
 
 ## 4. Login wall (Cloudflare Access)
@@ -49,7 +31,7 @@ If content.thecannizzos.com isn't already covered by an Access policy:
 
 1. Cloudflare → **Zero Trust** → **Access** → **Applications** → **Add an application** → **Self-hosted**.
 2. Name: `Growthopedia Content`. Domain: `content.thecannizzos.com`.
-3. Policy: Allow → Include → **Emails** → your email address(es). Same as the outreach app.
+3. Policy: Allow → Include → **Emails** → your email address(es).
 4. Save.
 
 Visit https://content.thecannizzos.com in a private window. You should see the Cloudflare login before the app.
@@ -58,9 +40,9 @@ Visit https://content.thecannizzos.com in a private window. You should see the C
 This makes the app check Access's signed token on every request, so nothing can get in by faking a header.
 
 1. Zero Trust → **Access** → **Applications** → `Growthopedia Content` → **Overview**: copy the **Application Audience (AUD) Tag**.
-2. Zero Trust → **Settings** → **Custom Pages** (or Team & Resources): your team domain looks like `yourteam.cloudflareaccess.com`.
-3. Send both to Claude, or put them in `wrangler.jsonc` under `ACCESS_TEAM_DOMAIN` and `ACCESS_AUD` and push.
-   They must go in `wrangler.jsonc`. Each deploy replaces variables set only in the dashboard.
+2. Send it to Claude, or put it in `wrangler.jsonc` under `ACCESS_AUD` and push. The team domain
+   (`growthopedia.cloudflareaccess.com`) is already filled in. Values must go in `wrangler.jsonc`: each deploy
+   replaces variables set only in the dashboard. Secrets such as `ANTHROPIC_API_KEY` are kept.
 
 ## 6. First run
 Open the app:
