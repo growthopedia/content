@@ -6,6 +6,7 @@ import UI from './ui.html';
 import POST_PAGE from './post.html';
 import KIT_PAGE from './kit.html';
 import SCHEMA from '../schema.sql';
+import SEED from '../seed.sql';
 import { POST_TYPES, TYPE_LABEL, checkPost, checkBlog, blockingFailures, fullCaption, schemaFor, postUrl, slugify, links, isInternal, cleanHtml } from './rules.js';
 import { toSql, nowSql, parseUtc, zonedToUtc, localDate } from './time.js';
 import { sendEmail, emailReady } from './email.js';
@@ -14,7 +15,7 @@ import { signedInEmail } from './access.js';
 let schemaReady = false;
 async function ensureSchema(env) {
   if (schemaReady) return;
-  const statements = SCHEMA
+  const statements = (SCHEMA + '\n' + SEED)
     .split('\n')
     .map((l) => l.replace(/--.*$/, ''))
     .join('\n')
@@ -200,7 +201,7 @@ const DEFAULT_SETTINGS = {
   author_url: '',
   author_bio: '',
   default_time: '11:30',
-  default_days: 'Tue,Thu',
+  default_days: 'Mon,Tue,Thu,Fri',
   audience: '',
   tone: '',
   avoid: '',
