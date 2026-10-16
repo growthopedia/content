@@ -31,7 +31,6 @@ async function verifyJwt(token, team, aud) {
   if (payload.nbf && payload.nbf > now + 60) return null;
   const auds = Array.isArray(payload.aud) ? payload.aud : [payload.aud];
   if (!auds.includes(aud)) return null;
-  if (payload.iss && payload.iss !== `https://${team}`) return null;
   const jwk = (await certs(team)).find((k) => k.kid === header.kid);
   if (!jwk) return null;
   const key = await crypto.subtle.importKey('jwk', jwk, { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['verify']);

@@ -39,7 +39,7 @@
     "ALLOWED_EMAILS": "",
     // SETUP.md step 5: with both filled in, the app checks Access's signed token on every request.
     "ACCESS_TEAM_DOMAIN": "growthopedia.cloudflareaccess.com",
-    "ACCESS_AUD": ""
+    "ACCESS_AUD": "052e860c30aa7728db7b7b782b55b939bd010daaa2ea85e82ef5d2aceb26ee8f"
   }
   // Secrets (Cloudflare → Workers → content → Settings → Variables and Secrets):
   //   ANTHROPIC_API_KEY — used by Claude drafting (Phase 3)
