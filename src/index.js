@@ -1036,20 +1036,25 @@ async function importPlan(env, b) {
       if (kind === 'blog') {
         const intent = INTENTS.includes(it.intent) ? it.intent : null;
         const r = await run(env,
-          `INSERT INTO blog_posts (title, topic, reason, primary_keyword, intent, slug, planned_date, cluster_id, campaign_id, status)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'idea')`,
-          title, str(it.topic), str(it.reason), str(it.keyword, 200), intent, slugify(it.keyword || title),
-          it.date || null, await clusterId(it.cluster), await campaignId(it.campaign));
+          `INSERT INTO blog_posts (title, topic, reason, primary_keyword, intent, slug, planned_date, cluster_id, campaign_id,
+                                   seo_title, meta_description, excerpt, categories, tags, body_html, has_faq, featured_alt, notes, status)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'idea')`,
+          title, str(it.topic), str(it.reason), str(it.keyword, 200), intent, slugify(it.slug || it.keyword || title),
+          it.date || null, await clusterId(it.cluster), await campaignId(it.campaign),
+          str(it.seo_title, 200), str(it.meta_description, 400), str(it.excerpt, 1000), str(it.categories, 300), str(it.tags, 500),
+          str(cleanHtml(it.body_html), 200_000), it.has_faq ? 1 : 0, str(it.featured_alt, 500), str(it.notes, 4000));
         if (it.campaign) await run(env, `UPDATE campaigns SET blog_post_id=COALESCE(blog_post_id, ?) WHERE id=?`, r.meta.last_row_id, await campaignId(it.campaign));
         blogs++;
       } else if (kind === 'instagram' || kind === 'post' || POST_TYPES.includes(kind)) {
         const type = POST_TYPES.includes(it.type) ? it.type : POST_TYPES.includes(kind) ? kind : 'image';
         const when = it.date ? toSql(zonedToUtc(it.date, it.time || settings.default_time || '11:30', tz(env))) : null;
         await run(env,
-          `INSERT INTO posts (type, title, topic, reason, primary_keyword, scheduled_at, cluster_id, campaign_id, caption, hashtags, status)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'idea')`,
+          `INSERT INTO posts (type, title, topic, reason, primary_keyword, scheduled_at, cluster_id, campaign_id, caption, hashtags,
+                              first_comment, alt_text, status)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'idea')`,
           type, title, str(it.topic), str(it.reason), str(it.keyword, 200), when,
-          await clusterId(it.cluster), await campaignId(it.campaign), str(it.caption, 5000), str(it.hashtags, 2000));
+          await clusterId(it.cluster), await campaignId(it.campaign), str(it.caption, 5000), str(it.hashtags, 2000),
+          str(it.first_comment, 2000), str(it.alt_text, 2000));
         posts++;
       } else {
         throw bad('kind must be "blog" or "instagram"');
