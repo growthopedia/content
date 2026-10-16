@@ -97,3 +97,4 @@ test('time zone conversion handles daylight saving', () => {
   assert.equal(toSql(zonedToUtc('2026-11-01', '09:00', 'America/New_York')), '2026-11-01 14:00:00'); // day DST ends
   assert.equal(localDate(new Date('2026-11-04T03:00:00Z'), 'America/New_York'), '2026-11-03');
 });
+

@@ -102,6 +102,10 @@ export default {
         return json(await postAction(env, Number(m[1]), await body(request)));
       if ((m = path.match(/^\/api\/posts\/(\d+)\/media$/)) && method === 'POST')
         return json(await uploadMedia(env, Number(m[1]), request, url));
+      if ((m = path.match(/^\/api\/posts\/(\d+)\/media\/from-url$/)) && method === 'POST')
+        return json(await mediaFromUrl(env, Number(m[1]), await body(request)));
+      if ((m = path.match(/^\/api\/blog\/(\d+)\/featured\/from-url$/)) && method === 'POST')
+        return json(await featuredFromUrl(env, Number(m[1]), await body(request)));
       if ((m = path.match(/^\/api\/posts\/(\d+)\/media\/order$/)) && method === 'POST')
         return json(await reorderMedia(env, Number(m[1]), await body(request)));
       if ((m = path.match(/^\/api\/media\/(\d+)$/)) && method === 'DELETE')
@@ -612,6 +616,101 @@ async function uploadMedia(env, postId, request, url) {
     q.get('duration') ? Number(q.get('duration')) || null : null, source, str(q.get('canva_design_id'), 100));
   const reverted = await revertPostApproval(env, postId);
   return { ...(await getPost(env, postId)), reverted };
+}
+
+// ---------- pull files from Canva export links ----------
+// Canva export links are short-lived downloads; the Worker fetches them and stores the file in R2,
+// so nothing has to be downloaded and re-uploaded by hand.
+
+function allowedSource(u) {
+  let url;
+  try { url = new URL(u); } catch { throw bad('That link is not valid.'); }
+  if (url.protocol !== 'https:') throw bad('Only https links are allowed.');
+  const host = url.hostname.toLowerCase();
+  if (!(host === 'canva.com' || host.endsWith('.canva.com') || host.endsWith('.amazonaws.com')))
+    throw bad('Only Canva export links can be imported.');
+  return url.toString();
+}
+
+// Width and height from the first bytes of a PNG or JPEG.
+export function imageSize(bytes) {
+  const b = bytes;
+  if (b.length > 24 && b[0] === 0x89 && b[1] === 0x50) {
+    const dv = new DataView(b.buffer, b.byteOffset);
+    return { width: dv.getUint32(16), height: dv.getUint32(20) };
+  }
+  if (b[0] === 0xff && b[1] === 0xd8) {
+    let i = 2;
+    while (i + 9 < b.length) {
+      if (b[i] !== 0xff) { i++; continue; }
+      const marker = b[i + 1];
+      const len = (b[i + 2] << 8) + b[i + 3];
+      if ((marker >= 0xc0 && marker <= 0xc3) || (marker >= 0xc5 && marker <= 0xc7) || (marker >= 0xc9 && marker <= 0xcb) || (marker >= 0xcd && marker <= 0xcf))
+        return { height: (b[i + 5] << 8) + b[i + 6], width: (b[i + 7] << 8) + b[i + 8] };
+      i += 2 + len;
+    }
+  }
+  return {};
+}
+
+async function fetchExport(u) {
+  const r = await fetch(allowedSource(u), { redirect: 'follow' });
+  if (!r.ok) throw bad(`Couldn't download that file (${r.status}). Export links expire, so export again.`, 502);
+  const type = (r.headers.get('content-type') || '').split(';')[0].trim().toLowerCase();
+  const buf = new Uint8Array(await r.arrayBuffer());
+  if (buf.length > MAX_UPLOAD) throw bad('File is over 100 MB.');
+  return { type, buf };
+}
+
+async function mediaFromUrl(env, postId, b) {
+  requireMedia(env);
+  const p = await loadPost(env, postId);
+  if (p.status === 'published') throw bad('Published posts can’t be changed.');
+  const urls = Array.isArray(b.urls) ? b.urls : b.url ? [b.url] : [];
+  if (!urls.length || urls.length > 10) throw bad('Send 1–10 links.');
+  if (b.replace) {
+    const old = await all(env, `SELECT r2_key FROM media WHERE post_id=?`, postId);
+    if (old.length) await env.MEDIA.delete(old.map((x) => x.r2_key));
+    await run(env, `DELETE FROM media WHERE post_id=?`, postId);
+  }
+  for (const [i, u] of urls.entries()) {
+    const { type, buf } = await fetchExport(u);
+    if (!/^(image\/(jpeg|png)|video\/mp4)$/.test(type)) throw bad(`Link ${i + 1} isn't a JPG, PNG or MP4 (got ${type || 'unknown'}).`);
+    const ext = type === 'video/mp4' ? 'mp4' : type === 'image/png' ? 'png' : 'jpg';
+    const filename = safeName(`${b.name || 'canva'}-${i + 1}.${ext}`);
+    const key = `posts/${postId}/${crypto.randomUUID()}-${filename}`;
+    await env.MEDIA.put(key, buf, { httpMetadata: { contentType: type } });
+    const size = type.startsWith('image/') ? imageSize(buf) : {};
+    const pos = await first(env, `SELECT COALESCE(MAX(position), -1) + 1 n FROM media WHERE post_id=?`, postId);
+    await run(env,
+      `INSERT INTO media (post_id, position, r2_key, filename, kind, content_type, size, width, height, source, canva_design_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'canva_chat', ?)`,
+      postId, pos.n, key, filename, type.startsWith('video/') ? 'video' : 'image', type, buf.length,
+      size.width || null, size.height || null, str(b.canva_design_id, 100));
+  }
+  const reverted = await revertPostApproval(env, postId);
+  return { ...(await getPost(env, postId)), reverted };
+}
+
+async function featuredFromUrl(env, id, b) {
+  requireMedia(env);
+  const p = await loadBlog(env, id);
+  if (p.status === 'published') throw bad('Published posts can’t be changed here.');
+  const { type, buf } = await fetchExport(b.url);
+  if (!/^image\/(jpeg|png)$/.test(type)) throw bad(`That link isn't a JPG or PNG (got ${type || 'unknown'}).`);
+  const key = `blog/${id}/${crypto.randomUUID()}-${safeName(`${b.name || 'featured'}.${type === 'image/png' ? 'png' : 'jpg'}`)}`;
+  await env.MEDIA.put(key, buf, { httpMetadata: { contentType: type } });
+  if (p.featured_image_key) await env.MEDIA.delete(p.featured_image_key);
+  await run(env, `UPDATE blog_posts SET featured_image_key=?, updated_at=datetime('now') WHERE id=?`, key, id);
+  let reverted = false;
+  if (p.status === 'draft_approved') {
+    await run(env, `UPDATE blog_posts SET status='drafted', draft_approved_at=NULL, reminder_sent_at=NULL WHERE id=?`, id);
+    reverted = true;
+  } else if (p.status === 'on_hold' && p.draft_approved_at) {
+    await run(env, `UPDATE blog_posts SET draft_approved_at=NULL WHERE id=?`, id);
+    reverted = true;
+  }
+  return { ...(await getBlog(env, id)), reverted };
 }
 
 async function reorderMedia(env, postId, b) {
