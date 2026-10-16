@@ -1,0 +1,44 @@
+{
+  // Growthopedia content planner — deployed by Cloudflare Workers Builds on every push to main.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "content",
+  "main": "src/index.js",
+  "compatibility_date": "2026-10-01",
+  "observability": { "enabled": true },
+
+  // Only reachable through the Access-protected custom domain.
+  "workers_dev": false,
+  "routes": [{ "pattern": "content.thecannizzos.com", "custom_domain": true }],
+
+  "rules": [{ "type": "Text", "globs": ["**/*.html", "**/*.sql"], "fallthrough": true }],
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "content",
+      "database_id": "d083d7f9-cea6-4152-b3d1-85dbb7f3ba39"
+    }
+  ],
+
+  // Images and videos for posts. SETUP.md step 1 creates it.
+  "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "content-media" }],
+
+  // Every 5 minutes: send reminders for posts that are due.
+  "triggers": { "crons": ["*/5 * * * *"] },
+
+  "vars": {
+    "APP_URL": "https://content.thecannizzos.com",
+    "TIMEZONE": "America/New_York",
+    // Reminders are sent from this Gmail account (same one the outreach app uses) to NOTIFY_EMAIL.
+    "SENDER_EMAIL": "hello@growthopedia.com",
+    "SENDER_NAME": "Growthopedia Content",
+    "NOTIFY_EMAIL": "jen.cannizzo@growthopedia.com",
+    // Optional comma-separated list to narrow who can use the app beyond your Access policy.
+    "ALLOWED_EMAILS": "",
+    // SETUP.md step 5: with both filled in, the app checks Access's signed token on every request.
+    "ACCESS_TEAM_DOMAIN": "",
+    "ACCESS_AUD": ""
+  }
+  // Secrets (Cloudflare → Workers → content → Settings → Variables and Secrets):
+  //   GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REFRESH_TOKEN  — copy the same three values from the outreach worker
+}

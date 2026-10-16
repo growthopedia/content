@@ -1,0 +1,1243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Growthopedia Content</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Open+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#f4f2ea">
+<style>
+/* Same look as the outreach app and growthopedia.com: cream background, deep brown text, forest green accent. */
+:root{
+  color-scheme:light;
+  --bg:#f4f2ea;--panel:#fbfaf6;--ink:#362e24;--muted:#736956;--line:#e4e0d8;
+  --heading:#1a2e1a;--deep:#162418;--sage:#768169;--label:#5a8a5c;--gold:#f5e7b1;
+  --accent:#2d5a2e;--accent-ink:#fff;--accent-soft:rgba(45,90,46,.09);
+  --warn:#8a5a12;--warn-soft:#f5e7b1;--bad:#9b3a2a;--bad-soft:#f3dfd6;--info:#4f5f45;--info-soft:rgba(118,129,105,.16);
+  --blog:#5b4a8a;--blog-soft:rgba(91,74,138,.12);
+  --radius:16px;--shadow:0 1px 2px rgba(54,46,36,.05),0 8px 24px -16px rgba(54,46,36,.25);
+  --head-font:"Open Sans",system-ui,sans-serif;--body-font:"DM Sans",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 var(--body-font);-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--head-font);color:var(--heading);letter-spacing:-.02em}
+header{position:sticky;top:0;z-index:5;background:rgba(244,242,234,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top{display:flex;align-items:center;gap:12px;padding:14px 16px;max-width:1280px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.brand img{height:28px;width:auto;display:block}
+.brand .tagline{font:700 11px/1 var(--body-font);letter-spacing:2.2px;text-transform:uppercase;color:var(--label);padding-left:10px;border-left:1px solid var(--line)}
+.pill{font:600 12px/1 var(--body-font);padding:7px 12px;border-radius:300px;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
+.spacer{flex:1}
+nav{display:flex;gap:4px;padding:0 12px;max-width:1280px;margin:0 auto;overflow-x:auto;scrollbar-width:none}
+nav button{border:0;background:none;color:var(--muted);padding:10px 12px;font:700 13px/1.2 var(--body-font);letter-spacing:1.4px;text-transform:uppercase;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap}
+nav button.on{color:var(--heading);border-color:var(--accent)}
+nav .count{font-size:11px;letter-spacing:0;background:var(--accent);color:var(--accent-ink);border-radius:99px;padding:1px 6px;margin-left:4px}
+main{max-width:1280px;margin:0 auto;padding:20px 16px 48px}
+.banner{border-radius:12px;padding:12px 16px;margin-bottom:12px;font-size:14px}
+.banner.warn{background:var(--warn-soft);color:var(--warn)}
+.banner.bad{background:var(--bad-soft);color:var(--bad)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:14px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+h2{font-size:20px;margin:0 0 4px}
+h3{font-size:15px;margin:0}
+a{color:var(--accent)}
+label.f{display:block;font:700 11px/1.2 var(--body-font);color:var(--label);text-transform:uppercase;letter-spacing:1.4px;margin:12px 0 4px}
+input,select,textarea{font:inherit;font-size:15px;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 12px;max-width:100%;width:100%}
+input[type=checkbox]{width:auto}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent-soft);border-color:var(--accent)}
+textarea{min-height:120px;resize:vertical;line-height:1.5}
+button.btn,a.btn{font:500 14px/1.2 var(--body-font);letter-spacing:.5px;border-radius:300px;padding:9px 18px;border:2px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer;display:inline-block;text-decoration:none;white-space:nowrap}
+button.btn.primary,a.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button.btn.primary:hover{background:var(--deep);border-color:var(--deep)}
+button.btn.danger{color:var(--bad);border-color:transparent}
+button.btn.quiet{border-color:var(--line)}
+button.btn.sm,a.btn.sm{padding:6px 12px;font-size:13px}
+button.btn:disabled{opacity:.5;cursor:default}
+.tag{display:inline-block;font:600 11px/1.4 var(--body-font);letter-spacing:.3px;padding:3px 10px;border-radius:20px;background:var(--bg);border:1px solid var(--line);color:var(--muted);margin:2px 4px 2px 0;white-space:nowrap}
+.tag.good{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.tag.warn{background:var(--warn-soft);border-color:transparent;color:var(--warn)}
+.tag.bad{background:var(--bad-soft);border-color:transparent;color:var(--bad)}
+.tag.info{background:var(--info-soft);border-color:transparent;color:var(--info)}
+.tag.blog{background:var(--blog-soft);border-color:transparent;color:var(--blog)}
+.empty{text-align:center;padding:32px 16px;color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--deep);color:var(--gold);padding:12px 20px;border-radius:300px;font-size:14px;z-index:50;max-width:90vw}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:0 14px}
+@media (max-width:700px){.grid2,.grid3{grid-template-columns:1fr}.hide-sm{display:none}}
+.section-title{font:700 12px/1.2 var(--body-font);color:var(--label);text-transform:uppercase;letter-spacing:1.6px;margin:22px 0 8px}
+
+/* Plan */
+.plan{display:grid;grid-template-columns:1fr 300px;gap:16px;align-items:start}
+@media (max-width:1000px){.plan{grid-template-columns:1fr}}
+.month-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.month-head h2{margin:0 8px 0 0;min-width:170px}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--panel)}
+.cal .dow{font:700 11px/1 var(--body-font);text-transform:uppercase;letter-spacing:1.4px;color:var(--label);padding:10px 8px;border-bottom:1px solid var(--line);background:var(--bg)}
+.cal .day{min-height:118px;padding:6px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:4px;min-width:0}
+.cal .day:nth-child(7n){border-right:0}
+.cal .day.out{background:rgba(228,224,216,.35)}
+.cal .day.today .num{background:var(--accent);color:#fff}
+.cal .day.drop{outline:2px dashed var(--accent);outline-offset:-3px}
+.cal .num{font:600 12px/1 var(--body-font);color:var(--muted);align-self:flex-start;padding:3px 6px;border-radius:99px}
+.chip{display:block;width:100%;text-align:left;border:0;border-left:3px solid var(--sage);background:#fff;border-radius:8px;padding:4px 6px;font:500 12px/1.3 var(--body-font);color:var(--ink);cursor:pointer;box-shadow:0 1px 0 var(--line);overflow:hidden}
+.chip .k{display:block;font:700 10px/1.2 var(--body-font);letter-spacing:.8px;text-transform:uppercase;color:var(--muted)}
+.chip .t{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip.blog{border-left-color:var(--blog)}
+.chip.s-idea{border-left-style:dashed;opacity:.85}
+.chip.s-rejected,.chip.s-on_hold{opacity:.5}
+.chip.s-published{background:var(--accent-soft)}
+.chip.s-needs_manual,.chip.s-failed,.chip.s-reminder_sent{background:var(--warn-soft)}
+.agenda{display:none}
+@media (max-width:760px){.cal{display:none}.agenda{display:block}}
+.agenda .aday{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.agenda .adate{width:54px;flex:none;font:700 13px/1.2 var(--body-font);color:var(--heading)}
+.agenda .adate small{display:block;font-weight:500;color:var(--muted)}
+.agenda .aitems{flex:1;display:flex;flex-direction:column;gap:6px;min-width:0}
+.side .card{padding:14px}
+.cov{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line);font-size:14px}
+.cov:last-child{border-bottom:0}
+.cov .n{margin-left:auto;font-variant-numeric:tabular-nums;font-weight:600}
+.cov.zero .n{color:var(--bad)}
+.ideas button{display:block;width:100%;text-align:left;margin:4px 0}
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:8px}
+
+/* Lists */
+.item{display:flex;gap:12px;align-items:flex-start}
+.item .body{flex:1;min-width:0}
+.item .name{font-weight:600}
+.thumb{width:64px;height:80px;flex:none;border-radius:10px;background:var(--bg) center/cover no-repeat;border:1px solid var(--line);display:grid;place-items:center;font-size:11px;color:var(--muted);overflow:hidden}
+.thumb video{width:100%;height:100%;object-fit:cover}
+.actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.ellipsis{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.why{font-size:13px;color:var(--muted);margin-top:4px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:700 11px/1.2 var(--body-font);color:var(--label);text-transform:uppercase;letter-spacing:1.6px}
+tr.click{cursor:pointer}
+tr.click:hover td{background:var(--accent-soft)}
+
+/* Dialog / editor */
+dialog{border:0;border-radius:20px;padding:0;width:min(1040px,100vw - 16px);max-height:94vh;background:var(--panel);color:var(--ink);box-shadow:0 10px 40px rgba(0,0,0,.25)}
+dialog.narrow{width:min(620px,100vw - 16px)}
+dialog::backdrop{background:rgba(0,0,0,.4)}
+.dlg-head{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--panel);z-index:2}
+.dlg-body{padding:16px;overflow:auto;max-height:calc(94vh - 60px)}
+.editor{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:20px}
+@media (max-width:860px){.editor{grid-template-columns:1fr}}
+.flow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:12px;border-radius:14px;background:var(--bg);border:1px solid var(--line)}
+.flow .state{font:700 12px/1.2 var(--body-font);letter-spacing:1px;text-transform:uppercase;color:var(--heading);margin-right:6px}
+.steps{display:flex;gap:4px;margin:10px 0 2px;flex-wrap:wrap}
+.steps span{font-size:11px;padding:3px 8px;border-radius:99px;background:var(--bg);color:var(--muted);border:1px solid var(--line)}
+.steps span.done{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.steps span.now{background:var(--accent);color:#fff;border-color:var(--accent)}
+.media-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-top:6px}
+.mitem{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:var(--bg);aspect-ratio:4/5}
+.mitem img,.mitem video{width:100%;height:100%;object-fit:cover;display:block}
+.mitem .bar{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-between;background:rgba(22,36,24,.75);color:#fff;font-size:11px;padding:4px}
+.mitem .bar button{background:none;border:0;color:#fff;cursor:pointer;font-size:14px;padding:0 6px}
+.mitem .del{position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;border:0;background:rgba(22,36,24,.8);color:#fff;cursor:pointer;font-size:13px;line-height:1}
+.mitem .pos{position:absolute;top:6px;left:6px;background:rgba(22,36,24,.75);color:#fff;font-size:11px;border-radius:99px;padding:1px 7px}
+.drop-zone{border:2px dashed var(--line);border-radius:14px;padding:16px;text-align:center;color:var(--muted);font-size:14px;cursor:pointer}
+.drop-zone.on{border-color:var(--accent);background:var(--accent-soft)}
+.counter{font-size:12px;color:var(--muted);text-align:right;margin-top:2px}
+.counter.over{color:var(--bad);font-weight:600}
+.checks{list-style:none;margin:0;padding:0;font-size:13px}
+.checks li{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}
+.checks li:last-child{border-bottom:0}
+.checks .ic{flex:none;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;margin-top:1px}
+.checks .ok .ic{background:var(--accent-soft);color:var(--accent)}
+.checks .warn .ic{background:var(--warn-soft);color:var(--warn)}
+.checks .err .ic{background:var(--bad-soft);color:var(--bad)}
+.checks .d{display:block;color:var(--muted);font-size:12px}
+.preview{border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden;font-size:14px}
+.preview .ph{display:flex;align-items:center;gap:8px;padding:10px 12px;font-weight:600}
+.preview .ph i{width:28px;height:28px;border-radius:50%;background:var(--accent);display:inline-block}
+.preview .pm{aspect-ratio:4/5;background:var(--bg) center/cover no-repeat;display:grid;place-items:center;color:var(--muted);font-size:13px}
+.preview .pm.story{aspect-ratio:9/16}
+.preview .pc{padding:10px 12px;white-space:pre-wrap;word-break:break-word}
+.preview .pc .more{color:var(--muted)}
+.rte-bar{display:flex;gap:4px;flex-wrap:wrap;padding:6px;border:1px solid var(--line);border-bottom:0;border-radius:12px 12px 0 0;background:var(--bg);position:sticky;top:0;z-index:1}
+.rte-bar button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:4px 9px;font:600 13px/1.2 var(--body-font);cursor:pointer;color:var(--ink)}
+.rte{min-height:360px;max-height:70vh;overflow:auto;border:1px solid var(--line);border-radius:0 0 12px 12px;background:#fff;padding:14px 18px;font-size:16px;line-height:1.65}
+.rte:focus{outline:2px solid var(--accent-soft);border-color:var(--accent)}
+.rte h2{font-size:22px;margin:22px 0 8px}.rte h3{font-size:18px;margin:18px 0 6px}
+.rte p{margin:0 0 12px}.rte blockquote{border-left:3px solid var(--line);margin:0 0 12px;padding-left:12px;color:var(--muted)}
+.rte:empty:before{content:attr(data-placeholder);color:var(--muted)}
+.featured{width:100%;aspect-ratio:16/9;border-radius:12px;background:var(--bg) center/cover no-repeat;border:1px solid var(--line);display:grid;place-items:center;color:var(--muted);font-size:13px}
+pre.code{background:var(--deep);color:var(--gold);padding:12px;border-radius:12px;overflow:auto;font-size:12px;max-height:240px}
+.kbd{font-family:ui-monospace,Menlo,monospace;font-size:12px;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:1px 5px}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <a class="brand" href="#plan"><img src="https://images.squarespace-cdn.com/content/v1/64642150deeb795976e61797/8e10d82e-0cbc-4749-a6ad-d7391405c81d/image0.png?format=300w" alt="Growthopedia"><span class="tagline">Content</span></a>
+    <div class="spacer"></div>
+    <span class="pill" id="statusPill">–</span>
+  </div>
+  <nav id="tabs">
+    <button data-tab="plan" class="on">Plan</button>
+    <button data-tab="approve">Approve <span class="count" id="approveCount" hidden></span></button>
+    <button data-tab="queue">Queue <span class="count" id="queueCount" hidden></span></button>
+    <button data-tab="blog">Blog</button>
+    <button data-tab="clusters">Clusters</button>
+    <button data-tab="settings">Settings</button>
+  </nav>
+</header>
+<main>
+  <div id="banners"></div>
+  <section id="tab-plan"></section>
+  <section id="tab-approve" hidden></section>
+  <section id="tab-queue" hidden></section>
+  <section id="tab-blog" hidden></section>
+  <section id="tab-clusters" hidden></section>
+  <section id="tab-settings" hidden></section>
+</main>
+
+<dialog id="dlg"><div class="dlg-head"><h3 id="dlgTitle" class="ellipsis" style="flex:1"></h3><span id="dlgHeadExtra"></span><button class="btn sm" id="dlgClose">Close</button></div><div class="dlg-body" id="dlgBody"></div></dialog>
+
+<script>
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const dlg = $('#dlg');
+let SUMMARY = { timezone: 'America/New_York' };
+let OPTIONS = { clusters: [], campaigns: [], postTypes: [] };
+let dirty = false;
+
+const TYPE_LABEL = { image: 'Single image', carousel: 'Carousel', reel: 'Reel', story: 'Story' };
+const STATUS = {
+  idea: ['Idea', 'info'], topic_approved: ['Topic approved', 'good'], drafted: ['Draft ready for review', 'warn'],
+  draft_approved: ['Draft approved', 'good'], scheduled: ['Scheduled', 'good'], reminder_sent: ['Waiting for you to post', 'warn'],
+  published: ['Published', 'good'], rejected: ['Rejected', 'bad'], on_hold: ['On hold', ''], needs_manual: ['Needs attention', 'bad'],
+  failed: ['Failed', 'bad'], publishing: ['Publishing', 'info'],
+};
+const statusTag = (s) => `<span class="tag ${STATUS[s]?.[1] || ''}">${esc(STATUS[s]?.[0] || s)}</span>`;
+const POST_STEPS = ['idea', 'topic_approved', 'drafted', 'draft_approved', 'scheduled', 'reminder_sent', 'published'];
+const BLOG_STEPS = ['idea', 'topic_approved', 'drafted', 'draft_approved', 'published'];
+const STEP_NAME = { idea: 'Idea', topic_approved: 'Topic OK', drafted: 'Draft', draft_approved: 'Draft OK', scheduled: 'Scheduled', reminder_sent: 'Reminded', published: 'Published' };
+
+async function api(path, opts = {}) {
+  const r = await fetch(path, { ...opts, headers: { 'content-type': 'application/json', ...(opts.headers || {}) } });
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data.error || `Request failed (${r.status})`);
+  return data;
+}
+const post = (path, data) => api(path, { method: 'POST', body: JSON.stringify(data || {}) });
+function toast(msg, ms = 3200) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), ms);
+}
+async function guard(fn) {
+  try { return await fn(); } catch (e) { toast(e.message, 6000); throw e; }
+}
+
+// ---------- time (everything shown in the business time zone) ----------
+const TZ = () => SUMMARY.timezone || 'America/New_York';
+function zparts(date) {
+  return Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: TZ(), year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' })
+    .formatToParts(date).map((p) => [p.type, p.value]));
+}
+function offsetMs(date) {
+  const p = zparts(date);
+  return Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour, +p.minute, +p.second) - Math.floor(date.getTime() / 1000) * 1000;
+}
+function zonedToUtc(dateStr, timeStr) {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const [hh, mm] = (timeStr || '09:00').split(':').map(Number);
+  const guess = Date.UTC(y, m - 1, d, hh, mm || 0, 0);
+  let t = guess - offsetMs(new Date(guess));
+  t = guess - offsetMs(new Date(t));
+  return new Date(t);
+}
+const parseSql = (s) => (s ? new Date(String(s).replace(' ', 'T') + (/[zZ]|[+-]\d\d:?\d\d$/.test(s) ? '' : 'Z')) : null);
+function localDateOf(sql) { const d = parseSql(sql); if (!d) return ''; const p = zparts(d); return `${p.year}-${p.month}-${p.day}`; }
+function localTimeOf(sql) { const d = parseSql(sql); if (!d) return ''; const p = zparts(d); return `${p.hour}:${p.minute}`; }
+function fmtWhen(sql, opts = {}) {
+  const d = parseSql(sql);
+  if (!d) return 'No date';
+  return new Intl.DateTimeFormat('en-US', { timeZone: TZ(), weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', ...opts }).format(d);
+}
+const fmtTime = (sql) => fmtWhen(sql, { weekday: undefined, month: undefined, day: undefined });
+function fmtDate(ymd) {
+  if (!ymd) return 'No date';
+  const [y, m, d] = ymd.split('-').map(Number);
+  return new Date(Date.UTC(y, m - 1, d, 12)).toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric' });
+}
+const todayLocal = () => { const p = zparts(new Date()); return `${p.year}-${p.month}-${p.day}`; };
+const ymd = (y, m, d) => `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+const mediaUrl = (key, dl) => `/media/${encodeURIComponent(key).replace(/%2F/g, '/')}${dl ? '?download=1' : ''}`;
+
+// ---------- shell ----------
+function showTab(name) {
+  if (!document.getElementById(`tab-${name}`)) name = 'plan';
+  $$('#tabs button').forEach((b) => b.classList.toggle('on', b.dataset.tab === name));
+  $$('main > section').forEach((s) => (s.hidden = s.id !== `tab-${name}`));
+  if (location.hash !== `#${name}`) history.replaceState(null, '', `#${name}`);
+  ({ plan: renderPlan, approve: renderApprove, queue: renderQueue, blog: renderBlog, clusters: renderClusters, settings: renderSettings })[name]();
+}
+$('#tabs').addEventListener('click', (e) => { const b = e.target.closest('button[data-tab]'); if (b) showTab(b.dataset.tab); });
+const currentTab = () => ($('#tabs button.on')?.dataset.tab || 'plan');
+const refresh = () => { loadSummary(); showTab(currentTab()); };
+
+async function loadSummary() {
+  try { SUMMARY = await api('/api/summary'); } catch (e) { $('#banners').innerHTML = `<div class="banner bad">${esc(e.message)}</div>`; return; }
+  const ac = $('#approveCount');
+  ac.hidden = !SUMMARY.toApprove; ac.textContent = SUMMARY.toApprove;
+  const qn = SUMMARY.waiting + SUMMARY.attention + SUMMARY.blogsDue;
+  const qc = $('#queueCount');
+  qc.hidden = !qn; qc.textContent = qn;
+  $('#statusPill').textContent = SUMMARY.waiting ? `${SUMMARY.waiting} to post now` : `${SUMMARY.scheduled} scheduled`;
+  const b = [];
+  if (!SUMMARY.mediaReady) b.push(`<div class="banner bad">Media storage (R2) isn’t connected, so uploads won’t work. See SETUP.md step 1.</div>`);
+  if (!SUMMARY.gmailReady) b.push(`<div class="banner warn">Reminder emails are off until Gmail is connected. See SETUP.md step 3. Scheduled posts still show in the Queue.</div>`);
+  if (SUMMARY.attention) b.push(`<div class="banner bad">${SUMMARY.attention} post${SUMMARY.attention > 1 ? 's need' : ' needs'} attention. <a href="#queue" onclick="showTab('queue')">Open the Queue</a></div>`);
+  $('#banners').innerHTML = b.join('');
+}
+async function loadOptions() { OPTIONS = await api('/api/options'); }
+
+// ---------- dialog ----------
+function openDialog(title, html, { narrow = false, extra = '' } = {}) {
+  dirty = false;
+  $('#dlgTitle').textContent = title;
+  $('#dlgHeadExtra').innerHTML = extra;
+  $('#dlgBody').innerHTML = html;
+  dlg.classList.toggle('narrow', narrow);
+  if (!dlg.open) dlg.showModal();
+  $('#dlgBody').scrollTop = 0;
+}
+function closeDialog(force) {
+  if (dirty && !force && !confirm('You have unsaved changes. Close without saving?')) return;
+  dirty = false;
+  dlg.close();
+  refresh();
+}
+$('#dlgClose').onclick = () => closeDialog();
+dlg.addEventListener('cancel', (e) => { e.preventDefault(); closeDialog(); });
+
+const clusterOptions = (sel) => `<option value="">No cluster</option>` + OPTIONS.clusters.map((c) => `<option value="${c.id}" ${String(sel) === String(c.id) ? 'selected' : ''}>${esc(c.name)}</option>`).join('');
+const campaignOptions = (sel) => `<option value="">No campaign</option>` + OPTIONS.campaigns.map((c) => `<option value="${c.id}" ${String(sel) === String(c.id) ? 'selected' : ''}>${esc(c.name)}</option>`).join('') + `<option value="__new">+ New campaign…</option>`;
+async function resolveCampaign(sel) {
+  if (sel.value !== '__new') return sel.value || null;
+  const name = prompt('Campaign name (e.g. the blog post it promotes):');
+  if (!name) { sel.value = ''; return null; }
+  const r = await post('/api/campaigns', { name });
+  await loadOptions();
+  sel.innerHTML = campaignOptions(r.id);
+  return r.id;
+}
+function stepsHtml(steps, status) {
+  const idx = steps.indexOf(status);
+  return `<div class="steps">${steps.map((s, i) => `<span class="${idx > i ? 'done' : idx === i ? 'now' : ''}">${STEP_NAME[s]}</span>`).join('')}</div>`;
+}
+function checksHtml(errors, warnings) {
+  if (!errors.length && !warnings.length) return `<ul class="checks"><li class="ok"><span class="ic">✓</span><span>Ready. Nothing to fix.</span></li></ul>`;
+  return `<ul class="checks">${errors.map((e) => `<li class="err"><span class="ic">!</span><span>${esc(e)}</span></li>`).join('')}${warnings.map((w) => `<li class="warn"><span class="ic">i</span><span>${esc(w)}</span></li>`).join('')}</ul>`;
+}
+
+// =====================================================================
+// PLAN
+// =====================================================================
+let planMonth = (() => { const p = zparts(new Date()); return { y: +p.year, m: +p.month }; })();
+let dragItem = null;
+
+async function renderPlan() {
+  const el = $('#tab-plan');
+  const { y, m } = planMonth;
+  const days = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  const fromDate = ymd(y, m, 1);
+  const toDate = ymd(y, m, days);
+  const next = m === 12 ? { y: y + 1, m: 1 } : { y, m: m + 1 };
+  const from = zonedToUtc(fromDate, '00:00').toISOString();
+  const to = zonedToUtc(ymd(next.y, next.m, 1), '00:00').toISOString();
+  el.innerHTML = `<div class="empty">Loading…</div>`;
+  let data;
+  try {
+    [data] = await Promise.all([api(`/api/calendar?from=${from}&to=${to}&from_date=${fromDate}&to_date=${toDate}`), loadOptions()]);
+  } catch (e) { el.innerHTML = `<div class="banner bad">${esc(e.message)}</div>`; return; }
+
+  const byDay = {};
+  for (const p of data.posts) (byDay[localDateOf(p.scheduled_at)] ||= []).push({ ...p, kind: 'post' });
+  for (const b of data.blogs) (byDay[b.planned_date] ||= []).unshift({ ...b, kind: 'blog' });
+
+  const chip = (it) => it.kind === 'blog'
+    ? `<button class="chip blog s-${it.status}" draggable="true" data-kind="blog" data-id="${it.id}" title="${esc(STATUS[it.status]?.[0])}"><span class="k">Blog · ${esc(STATUS[it.status]?.[0] || it.status)}</span><span class="t">${esc(it.title)}</span></button>`
+    : `<button class="chip s-${it.status}" draggable="true" data-kind="post" data-id="${it.id}" data-time="${localTimeOf(it.scheduled_at)}" title="${esc(STATUS[it.status]?.[0])}"><span class="k">${esc(TYPE_LABEL[it.type])} · ${fmtTime(it.scheduled_at)}</span><span class="t">${esc(it.title)}</span></button>`;
+
+  // Monday-first grid
+  const firstDow = (new Date(Date.UTC(y, m - 1, 1)).getUTCDay() + 6) % 7;
+  const cells = [];
+  const today = todayLocal();
+  for (let i = 0; i < firstDow; i++) cells.push(`<div class="day out"></div>`);
+  for (let d = 1; d <= days; d++) {
+    const key = ymd(y, m, d);
+    cells.push(`<div class="day ${key === today ? 'today' : ''}" data-date="${key}"><span class="num">${d}</span>${(byDay[key] || []).map(chip).join('')}</div>`);
+  }
+  while (cells.length % 7) cells.push(`<div class="day out"></div>`);
+
+  const agenda = [];
+  for (let d = 1; d <= days; d++) {
+    const key = ymd(y, m, d);
+    if (!byDay[key]) continue;
+    agenda.push(`<div class="aday"><div class="adate">${d}<small>${fmtDate(key).split(',')[0]}</small></div><div class="aitems">${byDay[key].map(chip).join('')}</div></div>`);
+  }
+
+  const monthName = new Date(Date.UTC(y, m - 1, 15)).toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+  const cov = data.coverage.length
+    ? data.coverage.map((c) => { const n = c.posts + c.blogs; return `<div class="cov ${n ? '' : 'zero'}"><span>${esc(c.name)}</span><span class="small muted">${c.blogs} blog · ${c.posts} IG</span><span class="n">${n}</span></div>`; }).join('')
+      + (data.noCluster ? `<div class="cov"><span class="muted">No cluster</span><span class="n">${data.noCluster}</span></div>` : '')
+    : `<p class="small muted">Add your service pillar pages on the <a href="#clusters" onclick="showTab('clusters')">Clusters</a> tab to see which ones this month covers.</p>`;
+  const clashes = data.clashes.length
+    ? data.clashes.map((c) => `<div class="cov"><span><b>${esc(c.keyword)}</b><br><span class="small muted">${esc(c.titles)}</span></span><span class="n" style="color:var(--bad)">${c.n}</span></div>`).join('')
+    : `<p class="small muted">None. Every blog post targets its own keyword.</p>`;
+  const un = [...data.unscheduled.blogs.map((b) => ({ ...b, kind: 'blog' })), ...data.unscheduled.posts.map((p) => ({ ...p, kind: 'post' }))];
+  const ideas = un.length
+    ? `<div class="ideas">${un.map((it) => `<button class="chip ${it.kind === 'blog' ? 'blog' : ''} s-${it.status}" draggable="true" data-kind="${it.kind}" data-id="${it.id}" data-time=""><span class="k">${it.kind === 'blog' ? 'Blog' : esc(TYPE_LABEL[it.type])} · ${esc(STATUS[it.status]?.[0])}</span><span class="t">${esc(it.title)}</span></button>`).join('')}</div><p class="small muted" style="margin:6px 0 0">Drag onto a day to give it a date.</p>`
+    : `<p class="small muted">Nothing waiting for a date.</p>`;
+
+  el.innerHTML = `
+    <div class="plan">
+      <div>
+        <div class="month-head">
+          <h2>${monthName}</h2>
+          <button class="btn sm quiet" id="prevM" aria-label="Previous month">‹</button>
+          <button class="btn sm quiet" id="todayM">Today</button>
+          <button class="btn sm quiet" id="nextM" aria-label="Next month">›</button>
+          <div class="spacer"></div>
+          <button class="btn sm primary" id="addPost">+ Instagram post</button>
+          <button class="btn sm" id="addBlog">+ Blog post</button>
+          <button class="btn sm quiet" id="importBtn">Import plan</button>
+        </div>
+        <div class="cal">${['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => `<div class="dow">${d}</div>`).join('')}${cells.join('')}</div>
+        <div class="agenda card">${agenda.join('') || `<div class="empty">Nothing planned this month yet.</div>`}</div>
+        <div class="legend"><span>Dashed edge = idea not yet approved</span><span>Purple = blog</span><span>Yellow = waiting for you</span><span>Green = published</span><span>Drag a card to move its date</span></div>
+      </div>
+      <aside class="side">
+        <div class="card"><h3>Coverage this month</h3><p class="small muted" style="margin:2px 0 6px">Every pillar should get something each month. Red = nothing planned.</p>${cov}</div>
+        <div class="card"><h3>Keyword clashes</h3><p class="small muted" style="margin:2px 0 6px">Two posts chasing one keyword compete with each other in search.</p>${clashes}</div>
+        <div class="card"><h3>No date yet</h3>${ideas}</div>
+      </aside>
+    </div>`;
+
+  $('#prevM').onclick = () => { planMonth = m === 1 ? { y: y - 1, m: 12 } : { y, m: m - 1 }; renderPlan(); };
+  $('#nextM').onclick = () => { planMonth = next; renderPlan(); };
+  $('#todayM').onclick = () => { const p = zparts(new Date()); planMonth = { y: +p.year, m: +p.month }; renderPlan(); };
+  $('#addPost').onclick = () => newPostDialog({});
+  $('#addBlog').onclick = () => newBlogDialog({});
+  $('#importBtn').onclick = importDialog;
+
+  el.querySelectorAll('.chip').forEach((c) => {
+    c.onclick = () => (c.dataset.kind === 'blog' ? openBlog(+c.dataset.id) : openPost(+c.dataset.id));
+    c.ondragstart = (e) => { dragItem = { kind: c.dataset.kind, id: +c.dataset.id, time: c.dataset.time }; e.dataTransfer.effectAllowed = 'move'; };
+  });
+  el.querySelectorAll('.day[data-date]').forEach((d) => {
+    d.ondragover = (e) => { e.preventDefault(); d.classList.add('drop'); };
+    d.ondragleave = () => d.classList.remove('drop');
+    d.ondrop = async (e) => {
+      e.preventDefault();
+      d.classList.remove('drop');
+      if (!dragItem) return;
+      const it = dragItem;
+      dragItem = null;
+      try {
+        if (it.kind === 'blog') await post(`/api/blog/${it.id}`, { planned_date: d.dataset.date });
+        else {
+          const r = await post(`/api/posts/${it.id}`, { scheduled_at: zonedToUtc(d.dataset.date, it.time || SUMMARY.defaultTime || '11:30').toISOString() });
+          if (r.reverted) toast('Moved.');
+        }
+        renderPlan();
+      } catch (err) { toast(err.message, 6000); }
+    };
+  });
+}
+
+function importDialog() {
+  const example = JSON.stringify({ items: [
+    { kind: 'blog', title: 'How to optimize your Google Business Profile', date: '2026-11-04', cluster: 'Local SEO', keyword: 'google business profile optimization', intent: 'informational', campaign: 'GBP guide', reason: 'High-intent local query; supports the Local SEO pillar.' },
+    { kind: 'instagram', type: 'carousel', title: '5 GBP fixes in 10 minutes', date: '2026-11-06', time: '11:30', cluster: 'Local SEO', keyword: 'google business profile', campaign: 'GBP guide' },
+  ] }, null, 2);
+  openDialog('Import a month plan', `
+    <p class="small muted" style="margin-top:0">Paste a plan as JSON, for example one Claude drafts for you in chat. Everything arrives as an <b>idea</b>, and nothing moves forward until you approve it. Unknown cluster or campaign names are created.</p>
+    <textarea id="impText" style="min-height:260px;font-family:ui-monospace,Menlo,monospace;font-size:13px" placeholder="${esc(example)}"></textarea>
+    <div class="row" style="margin-top:10px"><button class="btn primary" id="impGo">Import</button><button class="btn quiet" id="impEx">Insert example</button></div>
+    <div id="impOut"></div>`, { narrow: true });
+  $('#impEx').onclick = () => { $('#impText').value = example; };
+  $('#impGo').onclick = () => guard(async () => {
+    let parsed;
+    try { parsed = JSON.parse($('#impText').value); } catch { throw new Error('That isn’t valid JSON.'); }
+    const r = await post('/api/import', parsed);
+    $('#impOut').innerHTML = `<div class="banner ${r.errors.length ? 'warn' : ''}" style="margin-top:12px;background:${r.errors.length ? '' : 'var(--accent-soft)'}">
+      Imported ${r.blogs} blog post(s) and ${r.posts} Instagram post(s)${r.newClusters ? `, created ${r.newClusters} cluster(s)` : ''}${r.newCampaigns ? `, ${r.newCampaigns} campaign(s)` : ''}.
+      ${r.errors.length ? `<br>Skipped ${r.errors.length}: ${r.errors.map((x) => `#${x.index + 1} ${esc(x.title)} (${esc(x.error)})`).join('; ')}` : ''}
+      <br><a href="#approve" onclick="closeDialog(true);showTab('approve')">Review them on the Approve tab</a></div>`;
+  });
+}
+
+// =====================================================================
+// APPROVE
+// =====================================================================
+async function renderApprove() {
+  const el = $('#tab-approve');
+  el.innerHTML = `<div class="empty">Loading…</div>`;
+  let d;
+  try { d = await api('/api/approvals'); } catch (e) { el.innerHTML = `<div class="banner bad">${esc(e.message)}</div>`; return; }
+  const topics = [...d.blogs.filter((b) => b.status === 'idea').map((b) => ({ ...b, kind: 'blog' })), ...d.posts.filter((p) => p.status === 'idea').map((p) => ({ ...p, kind: 'post' }))];
+  const drafts = [...d.blogs.filter((b) => b.status === 'drafted').map((b) => ({ ...b, kind: 'blog' })), ...d.posts.filter((p) => p.status === 'drafted').map((p) => ({ ...p, kind: 'post' }))];
+
+  const meta = (it) => [
+    it.kind === 'blog' ? `<span class="tag blog">Blog</span>` : `<span class="tag">${esc(TYPE_LABEL[it.type])}</span>`,
+    it.kind === 'blog' ? `<span class="tag">${it.planned_date ? fmtDate(it.planned_date) : 'No date'}</span>` : `<span class="tag">${it.scheduled_at ? fmtWhen(it.scheduled_at) : 'No date'}</span>`,
+    it.cluster_name ? `<span class="tag info">${esc(it.cluster_name)}</span>` : '',
+    it.primary_keyword ? `<span class="tag">“${esc(it.primary_keyword)}”</span>` : '',
+    it.intent ? `<span class="tag">${esc(it.intent)}</span>` : '',
+  ].join('');
+
+  const topicCard = (it) => `
+    <div class="card" data-kind="${it.kind}" data-id="${it.id}">
+      <div class="name">${esc(it.title)}</div>
+      <div style="margin-top:4px">${meta(it)}</div>
+      ${it.topic ? `<div class="small" style="margin-top:6px">${esc(it.topic)}</div>` : ''}
+      ${it.reason ? `<div class="why"><b>Why:</b> ${esc(it.reason)}</div>` : ''}
+      <div class="actions">
+        <button class="btn sm primary" data-act="approve_topic">Approve topic</button>
+        <button class="btn sm quiet" data-act="open">Edit</button>
+        <button class="btn sm danger" data-act="reject">Reject</button>
+      </div>
+    </div>`;
+
+  const draftCard = (it) => {
+    if (it.kind === 'blog') {
+      const blockers = it.failing.filter((f) => f.level === 'error');
+      return `<div class="card" data-kind="blog" data-id="${it.id}">
+        <div class="name">${esc(it.title)}</div><div style="margin-top:4px">${meta(it)}</div>
+        <div class="small" style="margin-top:6px">${it.failing.length ? `${it.failing.length} check(s) not passing: ${it.failing.map((f) => esc(f.label)).join('; ')}` : '<span style="color:var(--accent)">All SEO and AI-search checks pass.</span>'}</div>
+        <div class="actions">
+          <button class="btn sm primary" data-act="approve_draft" ${blockers.length ? 'disabled title="Fix the required items first"' : ''}>Approve draft</button>
+          <button class="btn sm quiet" data-act="open">Read and edit</button>
+          <a class="btn sm quiet" href="/kit/${it.id}" target="_blank">Paste kit preview</a>
+          <button class="btn sm danger" data-act="back_to_draft">Send back</button>
+        </div></div>`;
+    }
+    const thumbs = it.media.filter((x) => x.kind !== 'cover').slice(0, 5).map((mm) => mm.kind === 'video'
+      ? `<div class="thumb"><video src="${mediaUrl(mm.r2_key)}#t=0.5" muted playsinline preload="metadata"></video></div>`
+      : `<div class="thumb" style="background-image:url('${mediaUrl(mm.r2_key)}')"></div>`).join('');
+    const c = it.checks;
+    return `<div class="card" data-kind="post" data-id="${it.id}">
+      <div class="item">${thumbs ? `<div class="row" style="flex:none;max-width:45%;flex-wrap:nowrap;overflow:auto">${thumbs}</div>` : ''}
+        <div class="body"><div class="name">${esc(it.title)}</div><div style="margin-top:4px">${meta(it)}</div>
+        ${it.type !== 'story' ? `<div class="small" style="margin-top:6px;white-space:pre-wrap;max-height:7.5em;overflow:hidden">${esc(it.caption || '')}</div>` : ''}
+        ${c.errors.length || c.warnings.length ? `<div class="small" style="margin-top:6px;color:${c.errors.length ? 'var(--bad)' : 'var(--warn)'}">${c.errors.length ? c.errors.map(esc).join(' ') : `${c.warnings.length} suggestion(s)`}</div>` : ''}
+        </div></div>
+      <div class="actions">
+        <button class="btn sm primary" data-act="approve_draft" ${c.errors.length ? 'disabled' : ''}>Approve draft</button>
+        <button class="btn sm quiet" data-act="open">Open</button>
+        <button class="btn sm danger" data-act="back_to_draft">Send back</button>
+      </div></div>`;
+  };
+
+  el.innerHTML = `
+    <div class="row"><h2 style="flex:1">Approve</h2>${topics.length > 1 ? `<button class="btn sm quiet" id="approveAll">Approve all ${topics.length} topics</button>` : ''}</div>
+    <p class="muted small" style="margin-top:0">Two approvals per item: the topic first, then the finished draft. Nothing is scheduled without both.</p>
+    <div class="section-title">Topics to approve (${topics.length})</div>
+    ${topics.map(topicCard).join('') || `<div class="card empty">No topics waiting. Add ideas on the Plan tab or import a month plan.</div>`}
+    <div class="section-title">Drafts to approve (${drafts.length})</div>
+    ${drafts.map(draftCard).join('') || `<div class="card empty">No drafts waiting.</div>`}`;
+
+  el.querySelectorAll('[data-act]').forEach((b) => (b.onclick = async () => {
+    const card = b.closest('[data-id]');
+    const kind = card.dataset.kind;
+    const id = +card.dataset.id;
+    const act = b.dataset.act;
+    if (act === 'open') return kind === 'blog' ? openBlog(id) : openPost(id);
+    const payload = { action: act };
+    if (act === 'reject') {
+      const reason = prompt('Why reject it? (helps future plans)');
+      if (reason === null) return;
+      payload.reason = reason;
+    }
+    b.disabled = true;
+    try {
+      await post(`/api/${kind === 'blog' ? 'blog' : 'posts'}/${id}/action`, payload);
+      toast({ approve_topic: 'Topic approved', approve_draft: 'Draft approved', reject: 'Rejected', back_to_draft: 'Sent back to draft' }[act] || 'Done');
+      loadSummary();
+      renderApprove();
+    } catch (e) { b.disabled = false; toast(e.message, 6000); }
+  }));
+  const all = $('#approveAll');
+  if (all) all.onclick = () => guard(async () => {
+    if (!confirm(`Approve all ${topics.length} topics? Each one still needs its draft approved later.`)) return;
+    for (const it of topics) await post(`/api/${it.kind === 'blog' ? 'blog' : 'posts'}/${it.id}/action`, { action: 'approve_topic' });
+    toast(`${topics.length} topics approved`);
+    loadSummary();
+    renderApprove();
+  });
+}
+
+// =====================================================================
+// QUEUE
+// =====================================================================
+async function renderQueue() {
+  const el = $('#tab-queue');
+  el.innerHTML = `<div class="empty">Loading…</div>`;
+  let q;
+  try { q = await api('/api/queue'); } catch (e) { el.innerHTML = `<div class="banner bad">${esc(e.message)}</div>`; return; }
+  const thumb = (p) => !p.thumb ? `<div class="thumb">${esc(TYPE_LABEL[p.type])}</div>`
+    : p.thumb.kind === 'video' ? `<div class="thumb"><video src="${mediaUrl(p.thumb.key)}#t=0.5" muted playsinline preload="metadata"></video></div>`
+    : `<div class="thumb" style="background-image:url('${mediaUrl(p.thumb.key)}')"></div>`;
+  const card = (p, buttons) => `<div class="card item" data-id="${p.id}">${thumb(p)}<div class="body">
+      <div class="name">${esc(p.title)}</div>
+      <div style="margin-top:4px"><span class="tag">${esc(TYPE_LABEL[p.type])}</span><span class="tag">${fmtWhen(p.scheduled_at)}</span>${statusTag(p.status)}</div>
+      ${p.error ? `<div class="small" style="color:var(--bad);margin-top:4px">${esc(p.error)}</div>` : ''}
+      <div class="actions">${buttons}</div></div></div>`;
+  const blogRow = (b, extra = '') => `<div class="card item" data-blog="${b.id}"><div class="thumb" style="color:var(--blog)">Blog</div><div class="body"><div class="name">${esc(b.title)}</div>
+      <div style="margin-top:4px"><span class="tag blog">${b.planned_date ? fmtDate(b.planned_date) : 'No date'}</span>${statusTag(b.status)}</div>
+      <div class="actions"><a class="btn sm primary" href="/kit/${b.id}" target="_blank">Open Paste kit</a><button class="btn sm quiet" data-open-blog="${b.id}">Edit</button>${extra}</div></div></div>`;
+  const sec = (title, inner, hint = '') => `<div class="section-title">${title}</div>${hint ? `<p class="small muted" style="margin:-4px 0 8px">${hint}</p>` : ''}${inner}`;
+  const openBtn = (p) => `<a class="btn sm primary" href="/p/${p.id}" target="_blank">Open post page</a>`;
+
+  el.innerHTML = `<h2>Queue</h2>
+    ${q.attention.length ? sec('Needs attention', q.attention.map((p) => card(p, `${openBtn(p)}<button class="btn sm quiet" data-act="mark_posted">Mark posted</button><button class="btn sm quiet" data-act="unschedule">Unschedule</button>`)).join('')) : ''}
+    ${sec(`Post now (${q.waiting.length})`, q.waiting.map((p) => card(p, `${openBtn(p)}<button class="btn sm quiet" data-act="mark_posted">Mark posted</button><button class="btn sm quiet" data-act="unschedule">Unschedule</button>`)).join('') || `<div class="card empty">Nothing waiting. Reminders land here and in your email at the scheduled time.</div>`)}
+    ${q.blogsDue.length ? sec(`Blog posts to publish (${q.blogsDue.length})`, q.blogsDue.map((b) => blogRow(b)).join('')) : ''}
+    ${sec(`Scheduled (${q.scheduled.length})`, q.scheduled.map((p) => card(p, `<button class="btn sm quiet" data-act="open">Open</button><button class="btn sm quiet" data-act="remind_now">Remind me now</button><button class="btn sm quiet" data-act="unschedule">Unschedule</button>`)).join('') || `<div class="card empty">Nothing scheduled.</div>`, 'You get an email at each time with a link to the post page.')}
+    ${q.ready.length || q.readyBlogs.length ? sec('Approved, not scheduled yet', q.ready.map((p) => card(p, `<button class="btn sm primary" data-act="open">Set a time and schedule</button>`)).join('') + q.readyBlogs.map((b) => blogRow(b)).join('')) : ''}
+    ${q.recent.length || q.recentBlogs.length ? sec('Published in the last 30 days', q.recent.map((p) => card(p, p.ig_permalink ? `<a class="btn sm quiet" href="${esc(p.ig_permalink)}" target="_blank" rel="noopener">View on Instagram</a>` : `<span class="small muted">Posted ${fmtWhen(p.published_at)}</span>`)).join('')
+      + q.recentBlogs.map((b) => `<div class="card item"><div class="thumb" style="color:var(--blog)">Blog</div><div class="body"><div class="name">${esc(b.title)}</div><div class="small">${b.published_url ? `<a href="${esc(b.published_url)}" target="_blank" rel="noopener">${esc(b.published_url)}</a>` : ''}</div></div></div>`).join('')) : ''}`;
+
+  el.querySelectorAll('[data-open-blog]').forEach((b) => (b.onclick = () => openBlog(+b.dataset.openBlog)));
+  el.querySelectorAll('[data-act]').forEach((b) => (b.onclick = async () => {
+    const id = +b.closest('[data-id]').dataset.id;
+    if (b.dataset.act === 'open') return openPost(id);
+    const payload = { action: b.dataset.act };
+    if (b.dataset.act === 'mark_posted') {
+      const link = prompt('Optional: paste the Instagram link to the post (or leave blank).', '');
+      if (link === null) return;
+      payload.permalink = link.trim();
+    }
+    try {
+      await post(`/api/posts/${id}/action`, payload);
+      toast({ mark_posted: 'Marked posted', unschedule: 'Unscheduled', remind_now: 'Reminder sent' }[b.dataset.act] || 'Done');
+      loadSummary();
+      renderQueue();
+    } catch (e) { toast(e.message, 6000); }
+  }));
+}
+
+// =====================================================================
+// INSTAGRAM POST EDITOR
+// =====================================================================
+function defaultSlot() {
+  // Next default posting day (e.g. Tue/Thu) at the default time.
+  const days = (SUMMARY.defaultDays || 'Tue,Thu').split(',').map((s) => s.trim().slice(0, 3).toLowerCase());
+  const names = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+  const p = zparts(new Date());
+  for (let i = 1; i <= 14; i++) {
+    const d = new Date(Date.UTC(+p.year, +p.month - 1, +p.day + i, 12));
+    if (days.includes(names[d.getUTCDay()])) return ymd(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate());
+  }
+  return '';
+}
+
+async function newPostDialog(defaults) {
+  await loadOptions();
+  openDialog('New Instagram post', `
+    <label class="f">Working title</label><input id="npTitle" placeholder="e.g. 5 Google Business Profile fixes" value="${esc(defaults.title || '')}">
+    <div class="grid2">
+      <div><label class="f">Type</label><select id="npType">${OPTIONS.postTypes.map((t) => `<option value="${t.value}">${t.label}</option>`).join('')}</select></div>
+      <div><label class="f">Cluster</label><select id="npCluster">${clusterOptions(defaults.cluster_id)}</select></div>
+      <div><label class="f">Date</label><input type="date" id="npDate" value="${esc(defaults.date ?? defaultSlot())}"></div>
+      <div><label class="f">Time (${esc(TZ().split('/').pop().replace('_', ' '))})</label><input type="time" id="npTime" value="${esc(SUMMARY.defaultTime || '11:30')}"></div>
+      <div><label class="f">Primary keyword</label><input id="npKw" placeholder="what people search for"></div>
+      <div><label class="f">Campaign</label><select id="npCamp">${campaignOptions(defaults.campaign_id)}</select></div>
+    </div>
+    <label class="f">Topic / angle</label><textarea id="npTopic" style="min-height:70px"></textarea>
+    <label class="row small" style="margin-top:10px;gap:6px"><input type="checkbox" id="npApprove" checked> I’m approving this topic now</label>
+    <div class="row" style="margin-top:14px"><button class="btn primary" id="npGo">Create and start drafting</button></div>`, { narrow: true });
+  $('#npCamp').onchange = () => resolveCampaign($('#npCamp'));
+  $('#npGo').onclick = () => guard(async () => {
+    const date = $('#npDate').value;
+    const r = await post('/api/posts', {
+      title: $('#npTitle').value, type: $('#npType').value, cluster_id: $('#npCluster').value || null,
+      campaign_id: await resolveCampaign($('#npCamp')), primary_keyword: $('#npKw').value, topic: $('#npTopic').value,
+      scheduled_at: date ? zonedToUtc(date, $('#npTime').value || '11:30').toISOString() : null,
+      approve_topic: $('#npApprove').checked,
+    });
+    openPost(r.post.id);
+  });
+}
+
+let EDIT = null; // { post, media, checks }
+
+async function openPost(id) {
+  await loadOptions();
+  try { EDIT = await api(`/api/posts/${id}`); } catch (e) { return toast(e.message, 6000); }
+  drawPostEditor();
+}
+
+function postFlowButtons(p) {
+  const b = (act, label, cls = 'quiet', extra = '') => `<button class="btn sm ${cls}" data-flow="${act}" ${extra}>${label}</button>`;
+  const errs = EDIT.checks.errors.length;
+  switch (p.status) {
+    case 'idea': return b('approve_topic', 'Approve topic', 'primary') + b('hold', 'Hold') + b('reject', 'Reject', 'danger');
+    case 'topic_approved': return b('submit_draft', 'Submit draft for approval', 'primary', errs ? 'disabled title="Fix the items marked ! first"' : '') + b('hold', 'Hold') + b('reject', 'Reject', 'danger');
+    case 'drafted': return b('approve_draft', 'Approve draft', 'primary', errs ? 'disabled' : '') + b('back_to_draft', 'Send back to draft') + b('reject', 'Reject', 'danger');
+    case 'draft_approved': return b('schedule', 'Schedule', 'primary', p.scheduled_at ? '' : 'disabled title="Set a date and time first"') + b('mark_posted', 'Mark posted') + b('back_to_draft', 'Back to draft');
+    case 'scheduled': return b('remind_now', 'Remind me now') + b('mark_posted', 'Mark posted') + b('unschedule', 'Unschedule');
+    case 'reminder_sent': case 'needs_manual': case 'failed':
+      return `<a class="btn sm primary" href="/p/${p.id}" target="_blank">Open post page</a>` + b('mark_posted', 'Mark posted') + b('unschedule', 'Unschedule');
+    case 'on_hold': case 'rejected': return b('reopen', 'Reopen', 'primary');
+    case 'published': return p.ig_permalink ? `<a class="btn sm quiet" href="${esc(p.ig_permalink)}" target="_blank" rel="noopener">View on Instagram</a>` : '';
+    default: return '';
+  }
+}
+
+function drawPostEditor() {
+  const { post: p, media, checks } = EDIT;
+  const locked = p.status === 'published';
+  const items = media.filter((m) => m.kind !== 'cover');
+  const first = items[0];
+  const capLen = (p.caption || '').length + ((p.hashtags || '').trim() ? (p.hashtags || '').trim().length + 2 : 0);
+  const previewMedia = !first ? `<div class="pm ${p.type === 'story' || p.type === 'reel' ? 'story' : ''}">No media yet</div>`
+    : first.kind === 'video' ? `<div class="pm ${p.type === 'story' || p.type === 'reel' ? 'story' : ''}" style="background:#000"><video src="${mediaUrl(first.r2_key)}" controls playsinline style="width:100%;height:100%;object-fit:cover"></video></div>`
+    : `<div class="pm ${p.type === 'story' || p.type === 'reel' ? 'story' : ''}" style="background-image:url('${mediaUrl(first.r2_key)}')"></div>`;
+  const cap = p.type === 'story' ? '' : (EDIT.fullCaption || '');
+  const capShort = cap.length > 125 ? `${esc(cap.slice(0, 125))}<span class="more">… more</span>` : esc(cap);
+
+  openDialog(p.title, `
+    <div class="flow"><span class="state">${esc(STATUS[p.status]?.[0] || p.status)}</span>${postFlowButtons(p)}<div class="spacer"></div>${!locked ? `<button class="btn sm primary" id="peSave">Save</button>` : ''}</div>
+    ${stepsHtml(POST_STEPS, ['needs_manual', 'failed'].includes(p.status) ? 'reminder_sent' : p.status)}
+    ${p.rejection_reason ? `<div class="banner bad" style="margin-top:10px">Rejected: ${esc(p.rejection_reason)}</div>` : ''}
+    ${p.error ? `<div class="banner bad" style="margin-top:10px">${esc(p.error)}</div>` : ''}
+    ${['draft_approved', 'scheduled', 'reminder_sent'].includes(p.status) ? `<div class="banner warn" style="margin-top:10px">Approved. Changing the caption, hashtags, alt text, type or media sends it back for approval.</div>` : ''}
+    <div class="editor" style="margin-top:14px">
+      <div>
+        <label class="f">Working title</label><input id="peTitle" value="${esc(p.title)}" ${locked ? 'disabled' : ''}>
+        <div class="grid3">
+          <div><label class="f">Type</label><select id="peType" ${locked ? 'disabled' : ''}>${OPTIONS.postTypes.map((t) => `<option value="${t.value}" ${t.value === p.type ? 'selected' : ''}>${t.label}</option>`).join('')}</select></div>
+          <div><label class="f">Date</label><input type="date" id="peDate" value="${localDateOf(p.scheduled_at)}" ${locked ? 'disabled' : ''}></div>
+          <div><label class="f">Time</label><input type="time" id="peTime" value="${localTimeOf(p.scheduled_at) || esc(SUMMARY.defaultTime || '11:30')}" ${locked ? 'disabled' : ''}></div>
+          <div><label class="f">Cluster</label><select id="peCluster" ${locked ? 'disabled' : ''}>${clusterOptions(p.cluster_id)}</select></div>
+          <div><label class="f">Campaign</label><select id="peCamp" ${locked ? 'disabled' : ''}>${campaignOptions(p.campaign_id)}</select></div>
+          <div><label class="f">Posting</label><select id="peMode" ${locked ? 'disabled' : ''}><option value="manual">Manual (email reminder)</option><option value="auto" disabled>Auto (coming in Phase 2)</option></select></div>
+        </div>
+        <label class="f">Primary keyword</label><input id="peKw" value="${esc(p.primary_keyword || '')}" placeholder="Put it in the caption’s first line" ${locked ? 'disabled' : ''}>
+        <div class="grid2">
+          <div><label class="f">Topic / angle</label><textarea id="peTopic" style="min-height:70px" ${locked ? 'disabled' : ''}>${esc(p.topic || '')}</textarea></div>
+          <div><label class="f">Why this topic</label><textarea id="peReason" style="min-height:70px" ${locked ? 'disabled' : ''}>${esc(p.reason || '')}</textarea></div>
+        </div>
+
+        <label class="f">Media ${p.type === 'carousel' ? '(2–10, in order)' : p.type === 'reel' ? '(1 video, 9:16)' : p.type === 'story' ? '(1 image or video, 9:16)' : '(1 image)'}</label>
+        <div class="media-grid">${media.map((m, i) => `
+          <div class="mitem" data-mid="${m.id}">
+            ${m.kind === 'video' ? `<video src="${mediaUrl(m.r2_key)}#t=0.5" muted playsinline preload="metadata"></video>` : `<img src="${mediaUrl(m.r2_key)}" alt="">`}
+            <span class="pos">${m.kind === 'cover' ? 'Cover' : i + 1}</span>
+            ${locked ? '' : `<button class="del" data-del title="Remove" aria-label="Remove">✕</button><div class="bar"><button data-mv="-1" title="Move left" aria-label="Move left">◀</button><span>${m.width && m.height ? `${m.width}×${m.height}` : ''}</span><button data-mv="1" title="Move right" aria-label="Move right">▶</button></div>`}
+          </div>`).join('')}</div>
+        ${locked ? '' : `<div class="drop-zone" id="peDrop" style="margin-top:10px">Drop images or videos here, or <u>choose files</u><br><span class="small">PNG and WebP become JPG automatically (Instagram’s format). Video under 100 MB.</span><input type="file" id="peFile" accept="image/*,video/mp4,video/quicktime" multiple hidden></div>`}
+
+        ${p.type === 'story' ? `<p class="small muted" style="margin-top:14px">Stories have no caption. Add stickers, links or text in the Instagram app when you post.</p>` : `
+        <label class="f">Caption</label><textarea id="peCaption" style="min-height:180px" ${locked ? 'disabled' : ''}>${esc(p.caption || '')}</textarea>
+        <div class="counter" id="peCapCount"></div>
+        <label class="f">Hashtags (added under the caption)</label><input id="peTags" value="${esc(p.hashtags || '')}" placeholder="#localseo #smallbusiness" ${locked ? 'disabled' : ''}>
+        <div class="grid2">
+          <div><label class="f">First comment (optional)</label><textarea id="peComment" style="min-height:70px" ${locked ? 'disabled' : ''}>${esc(p.first_comment || '')}</textarea></div>
+          <div><label class="f">Alt text</label><textarea id="peAlt" style="min-height:70px" placeholder="Describe the image, using the keyword naturally" ${locked ? 'disabled' : ''}>${esc(p.alt_text || '')}</textarea></div>
+        </div>`}
+        ${locked ? '' : `<div class="row" style="margin-top:20px"><button class="btn danger" id="peDelete">Delete post</button></div>`}
+      </div>
+      <div>
+        <div class="section-title" style="margin-top:0">Checks</div>
+        ${checksHtml(checks.errors, checks.warnings)}
+        <div class="section-title">Preview</div>
+        <div class="preview"><div class="ph"><i></i>${esc(EDIT.handle || 'growthopedia.co')}</div>${previewMedia}${p.type === 'story' ? '' : `<div class="pc"><b>${esc(EDIT.handle || '')}</b> ${capShort || '<span class="more">No caption yet</span>'}</div>`}</div>
+        ${['scheduled', 'reminder_sent', 'needs_manual', 'draft_approved'].includes(p.status) ? `<p class="small" style="margin-top:12px"><a href="/p/${p.id}" target="_blank">Open the post page</a> (what the reminder email links to)</p>` : ''}
+      </div>
+    </div>`, { extra: `<span class="tag">${esc(TYPE_LABEL[p.type])}</span>` });
+
+  const capCount = () => {
+    const c = $('#peCaption');
+    if (!c) return;
+    const t = $('#peTags').value.trim();
+    const len = c.value.length + (t ? t.length + 2 : 0);
+    const tags = ((c.value + ' ' + t).match(/(^|\s)#[^\s#]+/g) || []).length;
+    const out = $('#peCapCount');
+    out.textContent = `${len} / 2,200 characters · ${tags} / 30 hashtags`;
+    out.classList.toggle('over', len > 2200 || tags > 30);
+  };
+  capCount();
+  $$('#dlgBody input, #dlgBody textarea, #dlgBody select').forEach((f) => f.addEventListener('input', () => { if (f.type !== 'file') dirty = true; capCount(); }));
+  if ($('#peCamp')) $('#peCamp').onchange = () => { dirty = true; resolveCampaign($('#peCamp')); };
+  if ($('#peSave')) $('#peSave').onclick = () => guard(() => savePost(true));
+  if ($('#peDelete')) $('#peDelete').onclick = () => guard(async () => {
+    if (!confirm('Delete this post and its media? This can’t be undone.')) return;
+    await api(`/api/posts/${p.id}`, { method: 'DELETE' });
+    toast('Deleted');
+    closeDialog(true);
+  });
+
+  $$('[data-flow]').forEach((b) => (b.onclick = () => guard(async () => {
+    const act = b.dataset.flow;
+    if (dirty) await savePost(false);
+    const payload = { action: act };
+    if (act === 'reject') { const r = prompt('Why reject it? (helps future plans)'); if (r === null) return; payload.reason = r; }
+    if (act === 'mark_posted') { const l = prompt('Optional: paste the Instagram link to the post.', ''); if (l === null) return; payload.permalink = l.trim(); }
+    EDIT = await post(`/api/posts/${p.id}/action`, payload);
+    toast({ approve_topic: 'Topic approved', submit_draft: 'Sent for approval', approve_draft: 'Draft approved', schedule: 'Scheduled. You’ll get an email at that time.', unschedule: 'Unscheduled', mark_posted: 'Marked posted', remind_now: 'Reminder sent', reject: 'Rejected', hold: 'On hold', reopen: 'Reopened', back_to_draft: 'Back to draft' }[act] || 'Done');
+    drawPostEditor();
+    loadSummary();
+  })));
+
+  // media: reorder, delete, upload
+  $$('.mitem').forEach((el) => {
+    const mid = +el.dataset.mid;
+    el.querySelectorAll('[data-mv]').forEach((btn) => (btn.onclick = () => guard(async () => {
+      const ids = EDIT.media.map((m) => m.id);
+      const i = ids.indexOf(mid);
+      const j = i + Number(btn.dataset.mv);
+      if (j < 0 || j >= ids.length) return;
+      [ids[i], ids[j]] = [ids[j], ids[i]];
+      if (dirty) await savePost(false);
+      EDIT = await post(`/api/posts/${p.id}/media/order`, { ids });
+      if (EDIT.reverted) toast('Media changed, so the draft needs approval again.', 5000);
+      drawPostEditor();
+    })));
+    const del = el.querySelector('[data-del]');
+    if (del) del.onclick = () => guard(async () => {
+      if (!confirm('Remove this file?')) return;
+      if (dirty) await savePost(false);
+      EDIT = await api(`/api/media/${mid}`, { method: 'DELETE' });
+      if (EDIT.reverted) toast('Media changed, so the draft needs approval again.', 5000);
+      drawPostEditor();
+    });
+  });
+  const dz = $('#peDrop');
+  if (dz) {
+    dz.onclick = () => $('#peFile').click();
+    $('#peFile').onchange = (e) => uploadFiles([...e.target.files]);
+    dz.ondragover = (e) => { e.preventDefault(); dz.classList.add('on'); };
+    dz.ondragleave = () => dz.classList.remove('on');
+    dz.ondrop = (e) => { e.preventDefault(); dz.classList.remove('on'); uploadFiles([...e.dataTransfer.files]); };
+  }
+}
+
+async function savePost(showToast) {
+  const p = EDIT.post;
+  const date = $('#peDate').value;
+  const body = {
+    title: $('#peTitle').value, type: $('#peType').value, cluster_id: $('#peCluster').value || null,
+    campaign_id: await resolveCampaign($('#peCamp')), primary_keyword: $('#peKw').value,
+    topic: $('#peTopic').value, reason: $('#peReason').value, publish_mode: 'manual',
+    scheduled_at: date ? zonedToUtc(date, $('#peTime').value || '11:30').toISOString() : null,
+  };
+  if ($('#peCaption')) Object.assign(body, { caption: $('#peCaption').value, hashtags: $('#peTags').value, first_comment: $('#peComment').value, alt_text: $('#peAlt').value });
+  EDIT = await post(`/api/posts/${p.id}`, body);
+  dirty = false;
+  if (EDIT.reverted) toast('Content changed after approval, so the draft needs approval again.', 5000);
+  else if (showToast) toast('Saved');
+  drawPostEditor();
+}
+
+// Converts PNG/WebP/HEIC to JPEG (Instagram's format) and reads each file's size in pixels.
+async function prepareFile(file) {
+  if (file.type.startsWith('video/')) {
+    const meta = await new Promise((res) => {
+      const v = document.createElement('video');
+      v.preload = 'metadata';
+      v.onloadedmetadata = () => { res({ width: v.videoWidth, height: v.videoHeight, duration: v.duration }); URL.revokeObjectURL(v.src); };
+      v.onerror = () => res({});
+      v.src = URL.createObjectURL(file);
+    });
+    return { blob: file, name: file.name, type: file.type || 'video/mp4', ...meta };
+  }
+  let bmp;
+  try { bmp = await createImageBitmap(file); } catch { return { blob: file, name: file.name, type: file.type }; }
+  const meta = { width: bmp.width, height: bmp.height };
+  if (file.type === 'image/jpeg') return { blob: file, name: file.name, type: file.type, ...meta };
+  const canvas = document.createElement('canvas');
+  canvas.width = bmp.width; canvas.height = bmp.height;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#ffffff'; // transparent areas become white instead of black
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(bmp, 0, 0);
+  const blob = await new Promise((res) => canvas.toBlob(res, 'image/jpeg', 0.92));
+  return { blob, name: file.name.replace(/\.[^.]+$/, '') + '.jpg', type: 'image/jpeg', ...meta };
+}
+
+async function uploadFiles(files) {
+  if (!files.length) return;
+  if (dirty) await savePost(false);
+  const id = EDIT.post.id;
+  for (const [i, f] of files.entries()) {
+    toast(`Uploading ${i + 1} of ${files.length}…`, 2000);
+    try {
+      const prep = await prepareFile(f);
+      const q = new URLSearchParams({ filename: prep.name });
+      if (prep.width) q.set('width', prep.width);
+      if (prep.height) q.set('height', prep.height);
+      if (prep.duration) q.set('duration', prep.duration.toFixed(2));
+      const r = await fetch(`/api/posts/${id}/media?${q}`, { method: 'POST', headers: { 'content-type': prep.type }, body: prep.blob });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(data.error || `Upload failed (${r.status})`);
+      EDIT = data;
+      if (data.reverted) toast('Media changed, so the draft needs approval again.', 5000);
+    } catch (e) { toast(`${f.name}: ${e.message}`, 6000); }
+  }
+  drawPostEditor();
+}
+
+// =====================================================================
+// BLOG
+// =====================================================================
+async function renderBlog() {
+  const el = $('#tab-blog');
+  el.innerHTML = `<div class="empty">Loading…</div>`;
+  let rows;
+  try { rows = await api('/api/blog'); } catch (e) { el.innerHTML = `<div class="banner bad">${esc(e.message)}</div>`; return; }
+  el.innerHTML = `
+    <div class="row"><h2 style="flex:1">Blog posts</h2><button class="btn sm primary" id="nbBtn">+ Blog post</button></div>
+    <p class="small muted" style="margin-top:0">Drafts are checked for SEO and AI-search rules. When approved, the Paste kit has every Squarespace field in order with copy buttons.</p>
+    <div class="card" style="padding:6px 12px;overflow-x:auto">
+    ${rows.length ? `<table><thead><tr><th>Title</th><th class="hide-sm">Keyword</th><th class="hide-sm">Cluster</th><th>Date</th><th>Status</th><th class="hide-sm">Checks</th></tr></thead><tbody>
+      ${rows.map((b) => `<tr class="click" data-id="${b.id}"><td><b>${esc(b.title)}</b></td><td class="hide-sm">${esc(b.primary_keyword || '—')}</td><td class="hide-sm">${esc(b.cluster_name || '—')}</td><td>${b.planned_date ? fmtDate(b.planned_date) : '—'}</td><td>${statusTag(b.status)}</td>
+      <td class="hide-sm"><span class="tag ${b.blocking ? 'bad' : b.passed === b.total ? 'good' : 'warn'}">${b.passed}/${b.total}</span></td></tr>`).join('')}
+    </tbody></table>` : `<div class="empty">No blog posts yet.</div>`}</div>`;
+  $('#nbBtn').onclick = () => newBlogDialog({});
+  el.querySelectorAll('tr[data-id]').forEach((tr) => (tr.onclick = () => openBlog(+tr.dataset.id)));
+}
+
+async function newBlogDialog(defaults) {
+  await loadOptions();
+  openDialog('New blog post', `
+    <label class="f">Title</label><input id="nbTitle" placeholder="e.g. How to optimize your Google Business Profile">
+    <div class="grid2">
+      <div><label class="f">Primary keyword</label><input id="nbKw" placeholder="google business profile optimization"></div>
+      <div><label class="f">Search intent</label><select id="nbIntent"><option value="">—</option><option>informational</option><option>commercial</option><option>transactional</option><option>navigational</option></select></div>
+      <div><label class="f">Cluster</label><select id="nbCluster">${clusterOptions(defaults.cluster_id)}</select></div>
+      <div><label class="f">Planned publish date</label><input type="date" id="nbDate"></div>
+    </div>
+    <label class="f">Campaign</label><select id="nbCamp">${campaignOptions(defaults.campaign_id)}</select>
+    <label class="f">Topic / angle</label><textarea id="nbTopic" style="min-height:70px"></textarea>
+    <label class="row small" style="margin-top:10px;gap:6px"><input type="checkbox" id="nbApprove" checked> I’m approving this topic now</label>
+    <div class="row" style="margin-top:14px"><button class="btn primary" id="nbGo">Create and start drafting</button></div>`, { narrow: true });
+  $('#nbCamp').onchange = () => resolveCampaign($('#nbCamp'));
+  $('#nbGo').onclick = () => guard(async () => {
+    const r = await post('/api/blog', {
+      title: $('#nbTitle').value, primary_keyword: $('#nbKw').value, intent: $('#nbIntent').value || null,
+      cluster_id: $('#nbCluster').value || null, planned_date: $('#nbDate').value || null,
+      campaign_id: await resolveCampaign($('#nbCamp')), topic: $('#nbTopic').value, approve_topic: $('#nbApprove').checked,
+    });
+    openBlog(r.post.id);
+  });
+}
+
+let BLOG = null;
+async function openBlog(id) {
+  await loadOptions();
+  try { BLOG = await api(`/api/blog/${id}`); } catch (e) { return toast(e.message, 6000); }
+  drawBlogEditor();
+}
+
+// Keeps only the formatting Squarespace's text block understands.
+function sanitizeHtml(input) {
+  const doc = new DOMParser().parseFromString(`<body>${input || ''}</body>`, 'text/html');
+  const KEEP = { P: 'p', H1: 'h2', H2: 'h2', H3: 'h3', H4: 'h4', STRONG: 'strong', B: 'strong', EM: 'em', I: 'em', A: 'a', UL: 'ul', OL: 'ol', LI: 'li', BLOCKQUOTE: 'blockquote', BR: 'br' };
+  const BLOCKISH = new Set(['DIV', 'SECTION', 'ARTICLE', 'HEADER', 'FOOTER', 'H5', 'H6']);
+  const walk = (node) => {
+    let out = '';
+    for (const n of node.childNodes) {
+      if (n.nodeType === 3) { out += esc(n.textContent); continue; }
+      if (n.nodeType !== 1) continue;
+      if (['SCRIPT', 'STYLE', 'IFRAME', 'OBJECT', 'TEMPLATE'].includes(n.tagName)) continue;
+      const inner = walk(n);
+      const tag = KEEP[n.tagName];
+      if (tag === 'br') { out += '<br>'; continue; }
+      if (tag === 'a') {
+        const href = (n.getAttribute('href') || '').trim();
+        out += /^(https?:|mailto:|tel:|\/|#)/i.test(href) ? `<a href="${esc(href)}">${inner}</a>` : inner;
+        continue;
+      }
+      if (tag) { out += `<${tag}>${inner}</${tag}>`; continue; }
+      out += BLOCKISH.has(n.tagName) && inner.trim() ? `<p>${inner}</p>` : inner;
+    }
+    return out;
+  };
+  return walk(doc.body).replace(/<p>\s*<\/p>/g, '').replace(/<p>(\s*<(h[234]|ul|ol|blockquote)>)/g, '$1');
+}
+
+function blogFlowButtons(p) {
+  const b = (act, label, cls = 'quiet', extra = '') => `<button class="btn sm ${cls}" data-flow="${act}" ${extra}>${label}</button>`;
+  const blocking = BLOG.checks.filter((c) => !c.ok && c.level === 'error').length;
+  switch (p.status) {
+    case 'idea': return b('approve_topic', 'Approve topic', 'primary') + b('hold', 'Hold') + b('reject', 'Reject', 'danger');
+    case 'topic_approved': return b('submit_draft', 'Submit draft for approval', 'primary', blocking ? 'disabled title="Fix the required items first"' : '') + b('hold', 'Hold') + b('reject', 'Reject', 'danger');
+    case 'drafted': return b('approve_draft', 'Approve draft', 'primary', blocking ? 'disabled' : '') + `<a class="btn sm quiet" href="/kit/${p.id}" target="_blank">Paste kit preview</a>` + b('back_to_draft', 'Send back to draft');
+    case 'draft_approved': return `<a class="btn sm primary" href="/kit/${p.id}" target="_blank">Open Paste kit</a>` + b('back_to_draft', 'Back to draft');
+    case 'on_hold': case 'rejected': return b('reopen', 'Reopen', 'primary');
+    case 'published': return p.published_url ? `<a class="btn sm quiet" href="${esc(p.published_url)}" target="_blank" rel="noopener">View live post</a>` : '';
+    default: return '';
+  }
+}
+
+function drawBlogEditor() {
+  const { post: p, checks } = BLOG;
+  const locked = p.status === 'published';
+  const dis = locked ? 'disabled' : '';
+  const fails = checks.filter((c) => !c.ok);
+  const featuredStyle = p.featured_image_key ? `style="background-image:url('${mediaUrl(p.featured_image_key)}')"` : '';
+  openDialog(p.title, `
+    <div class="flow"><span class="state">${esc(STATUS[p.status]?.[0] || p.status)}</span>${blogFlowButtons(p)}<div class="spacer"></div>${locked ? '' : `<button class="btn sm primary" id="beSave">Save</button>`}</div>
+    ${stepsHtml(BLOG_STEPS, p.status)}
+    ${p.rejection_reason ? `<div class="banner bad" style="margin-top:10px">Rejected: ${esc(p.rejection_reason)}</div>` : ''}
+    ${p.status === 'draft_approved' ? `<div class="banner warn" style="margin-top:10px">Approved. Editing the content sends it back for approval.</div>` : ''}
+    ${locked ? `<div class="banner" style="margin-top:10px;background:var(--accent-soft)">Published${p.published_url ? ` at <a href="${esc(p.published_url)}" target="_blank" rel="noopener">${esc(p.published_url)}</a>` : ''}. Make further edits in Squarespace.</div>` : ''}
+    <div class="editor" style="margin-top:14px">
+      <div>
+        <label class="f">Title</label><input id="beTitle" value="${esc(p.title)}" ${dis}>
+        <div class="grid3">
+          <div><label class="f">Primary keyword</label><input id="beKw" value="${esc(p.primary_keyword || '')}" ${dis}></div>
+          <div><label class="f">Search intent</label><select id="beIntent" ${dis}><option value="">—</option>${['informational', 'commercial', 'transactional', 'navigational'].map((x) => `<option ${p.intent === x ? 'selected' : ''}>${x}</option>`).join('')}</select></div>
+          <div><label class="f">Planned date</label><input type="date" id="beDate" value="${esc(p.planned_date || '')}" ${dis}></div>
+          <div><label class="f">Cluster</label><select id="beCluster" ${dis}>${clusterOptions(p.cluster_id)}</select></div>
+          <div style="grid-column:span 2"><label class="f">Campaign</label><select id="beCamp" ${dis}>${campaignOptions(p.campaign_id)}</select></div>
+        </div>
+        <div class="grid2">
+          <div><label class="f">Topic / angle</label><textarea id="beTopic" style="min-height:64px" ${dis}>${esc(p.topic || '')}</textarea></div>
+          <div><label class="f">Why this topic</label><textarea id="beReason" style="min-height:64px" ${dis}>${esc(p.reason || '')}</textarea></div>
+        </div>
+
+        <label class="f">Body</label>
+        <p class="small muted" style="margin:0 0 6px">Open with a direct 1–3 sentence answer. Use question-style H2s. Link the pillar page and 2+ related posts. The title becomes the H1 in Squarespace, so start sections at H2.</p>
+        ${locked ? '' : `<div class="rte-bar">
+          <button data-cmd="formatBlock" data-val="p">Text</button><button data-cmd="formatBlock" data-val="h2">H2</button><button data-cmd="formatBlock" data-val="h3">H3</button>
+          <button data-cmd="bold"><b>B</b></button><button data-cmd="italic"><i>I</i></button><button data-cmd="link">Link</button><button data-cmd="unlink">Unlink</button>
+          <button data-cmd="insertUnorderedList">• List</button><button data-cmd="insertOrderedList">1. List</button><button data-cmd="formatBlock" data-val="blockquote">Quote</button>
+        </div>`}
+        <div class="rte" id="beBody" contenteditable="${!locked}" data-placeholder="Write or paste the post here…">${sanitizeHtml(p.body_html || '')}</div>
+        <div class="counter" id="beWords"></div>
+
+        <div class="section-title">Squarespace fields</div>
+        <div class="grid2">
+          <div><label class="f">Post URL (slug)</label><div class="row" style="flex-wrap:nowrap"><input id="beSlug" value="${esc(p.slug || '')}" ${dis}>${locked ? '' : `<button class="btn sm quiet" id="beSlugKw" title="Make the slug from the keyword">From keyword</button>`}</div><div class="counter">${esc((BLOG.settings.blog_path || '/blog'))}/<span id="beSlugPrev">${esc(p.slug || '')}</span></div></div>
+          <div><label class="f">Categories</label><input id="beCats" value="${esc(p.categories || '')}" placeholder="Local SEO" ${dis}></div>
+        </div>
+        <label class="f">SEO title</label><input id="beSeoTitle" value="${esc(p.seo_title || '')}" ${dis}><div class="counter" id="beSeoTitleC"></div>
+        <label class="f">SEO description</label><textarea id="beMeta" style="min-height:64px" ${dis}>${esc(p.meta_description || '')}</textarea><div class="counter" id="beMetaC"></div>
+        <label class="f">Excerpt (shows on the blog page)</label><textarea id="beExcerpt" style="min-height:64px" ${dis}>${esc(p.excerpt || '')}</textarea>
+        <label class="f">Tags</label><input id="beTags" value="${esc(p.tags || '')}" placeholder="google business profile, local seo" ${dis}>
+        <label class="row small" style="margin-top:12px;gap:6px"><input type="checkbox" id="beFaq" ${p.has_faq ? 'checked' : ''} ${dis}> This post has an FAQ (adds FAQ schema built from question H2s)</label>
+
+        <div class="section-title">Featured image</div>
+        <div class="grid2">
+          <div><div class="featured" id="beFeatured" ${featuredStyle}>${p.featured_image_key ? '' : 'No image'}</div>
+            ${locked ? '' : `<div class="row" style="margin-top:8px"><button class="btn sm quiet" id="beFeatBtn">${p.featured_image_key ? 'Replace image' : 'Upload image'}</button><input type="file" id="beFeatFile" accept="image/jpeg,image/png,image/webp" hidden></div>`}</div>
+          <div><label class="f" style="margin-top:0">Alt text</label><textarea id="beAlt" style="min-height:96px" ${dis}>${esc(p.featured_alt || '')}</textarea></div>
+        </div>
+        <label class="f">Notes</label><textarea id="beNotes" style="min-height:64px">${esc(p.notes || '')}</textarea>
+        ${p.status === 'published' ? `<label class="f">Live URL</label><input id="beLive" value="${esc(p.published_url || '')}">` : ''}
+        ${locked ? `<div class="row" style="margin-top:10px"><button class="btn sm primary" id="beSaveNotes">Save notes and URL</button></div>` : `<div class="row" style="margin-top:20px"><button class="btn danger" id="beDelete">Delete blog post</button></div>`}
+      </div>
+      <div>
+        <div class="section-title" style="margin-top:0">SEO + AI-search checks (${checks.length - fails.length}/${checks.length})</div>
+        <ul class="checks">${checks.map((c) => `<li class="${c.ok ? 'ok' : c.level === 'error' ? 'err' : 'warn'}"><span class="ic">${c.ok ? '✓' : c.level === 'error' ? '!' : 'i'}</span><span>${esc(c.label)}${c.detail ? `<span class="d">${esc(c.detail)}</span>` : ''}</span></li>`).join('')}</ul>
+        <p class="small muted">! = required before approval. i = recommended. Checks refresh when you save.</p>
+        <button class="btn sm quiet" id="beLinks">Check internal links are live</button>
+        <div id="beLinkOut" class="small"></div>
+        <div class="section-title">Instagram posts in this campaign</div>
+        ${BLOG.campaignPosts.length ? BLOG.campaignPosts.map((x) => `<div class="cov"><a href="#" data-open-post="${x.id}">${esc(x.title)}</a><span class="n small">${statusTag(x.status)}</span></div>`).join('') : `<p class="small muted">${p.campaign_id ? 'None yet.' : 'Add this post to a campaign to plan its promotion posts.'}</p>`}
+        ${p.campaign_id ? `<button class="btn sm quiet" id="bePromo" style="margin-top:6px">+ Instagram post for this campaign</button>` : ''}
+      </div>
+    </div>`, { extra: `<span class="tag blog">Blog</span>` });
+
+  const body = $('#beBody');
+  const words = () => { const n = (body.innerText || '').trim().split(/\s+/).filter(Boolean).length; $('#beWords').textContent = `${n.toLocaleString()} words`; };
+  const counter = (inp, out, lo, hi) => { const n = $(inp).value.length; const o = $(out); o.textContent = `${n} characters (aim for ${lo}–${hi})`; o.classList.toggle('over', n > hi); };
+  const counters = () => { counter('#beSeoTitle', '#beSeoTitleC', 30, 60); counter('#beMeta', '#beMetaC', 120, 155); $('#beSlugPrev').textContent = $('#beSlug').value; };
+  words(); counters();
+  $$('#dlgBody input, #dlgBody textarea, #dlgBody select').forEach((f) => f.addEventListener('input', () => { if (f.type !== 'file') dirty = true; counters(); }));
+  body.addEventListener('input', () => { dirty = true; words(); });
+  body.addEventListener('paste', (e) => {
+    e.preventDefault();
+    const h = e.clipboardData.getData('text/html');
+    const t = e.clipboardData.getData('text/plain');
+    const clean = h ? sanitizeHtml(h) : esc(t).split(/\n{2,}/).map((para) => `<p>${para.replace(/\n/g, '<br>')}</p>`).join('');
+    document.execCommand('insertHTML', false, clean);
+  });
+  $$('.rte-bar button').forEach((b) => (b.onmousedown = (e) => {
+    e.preventDefault();
+    const cmd = b.dataset.cmd;
+    if (cmd === 'link') {
+      const url = prompt('Link to (https://… or /blog/…):');
+      if (url) document.execCommand('createLink', false, url.trim());
+    } else document.execCommand(cmd, false, b.dataset.val ? `<${b.dataset.val}>` : null);
+    dirty = true; words();
+  }));
+  if ($('#beSlugKw')) $('#beSlugKw').onclick = () => { $('#beSlug').value = slugify($('#beKw').value || $('#beTitle').value); dirty = true; counters(); };
+  if ($('#beCamp')) $('#beCamp').onchange = () => { dirty = true; resolveCampaign($('#beCamp')); };
+  if ($('#beSave')) $('#beSave').onclick = () => guard(() => saveBlog(true));
+  if ($('#beSaveNotes')) $('#beSaveNotes').onclick = () => guard(async () => {
+    BLOG = await post(`/api/blog/${p.id}`, { notes: $('#beNotes').value, published_url: $('#beLive')?.value });
+    dirty = false; toast('Saved'); drawBlogEditor();
+  });
+  if ($('#beDelete')) $('#beDelete').onclick = () => guard(async () => {
+    if (!confirm('Delete this blog post? This can’t be undone.')) return;
+    await api(`/api/blog/${p.id}`, { method: 'DELETE' });
+    toast('Deleted');
+    closeDialog(true);
+  });
+  if ($('#beFeatBtn')) {
+    $('#beFeatBtn').onclick = () => $('#beFeatFile').click();
+    $('#beFeatFile').onchange = (e) => guard(async () => {
+      const f = e.target.files[0];
+      if (!f) return;
+      if (dirty) await saveBlog(false);
+      toast('Uploading…', 1500);
+      const r = await fetch(`/api/blog/${p.id}/featured?filename=${encodeURIComponent(f.name)}`, { method: 'POST', headers: { 'content-type': f.type }, body: f });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(data.error || 'Upload failed');
+      BLOG = data;
+      if (data.reverted) toast('Image changed, so the draft needs approval again.', 5000);
+      drawBlogEditor();
+    });
+  }
+  $('#beLinks').onclick = () => guard(async () => {
+    if (dirty) await saveBlog(false);
+    $('#beLinkOut').innerHTML = '<p class="muted">Checking…</p>';
+    const r = await post(`/api/blog/${p.id}/check-links`);
+    $('#beLinkOut').innerHTML = r.results.length
+      ? `<ul class="checks" style="margin-top:8px">${r.results.map((x) => `<li class="${x.ok ? 'ok' : 'err'}"><span class="ic">${x.ok ? '✓' : '!'}</span><span>${esc(x.text || x.href)}<span class="d">${esc(x.href)} · ${x.status || esc(x.error)}</span></span></li>`).join('')}</ul>`
+      : `<p class="muted">No internal links found.</p>`;
+  });
+  $$('[data-open-post]').forEach((a) => (a.onclick = (e) => { e.preventDefault(); openPost(+a.dataset.openPost); }));
+  if ($('#bePromo')) $('#bePromo').onclick = () => newPostDialog({ campaign_id: p.campaign_id, cluster_id: p.cluster_id, date: '' });
+  $$('[data-flow]').forEach((b) => (b.onclick = () => guard(async () => {
+    const act = b.dataset.flow;
+    if (dirty) await saveBlog(false);
+    const payload = { action: act };
+    if (act === 'reject') { const r = prompt('Why reject it? (helps future plans)'); if (r === null) return; payload.reason = r; }
+    BLOG = await post(`/api/blog/${p.id}/action`, payload);
+    toast({ approve_topic: 'Topic approved', submit_draft: 'Sent for approval', approve_draft: 'Draft approved. The Paste kit is ready.', back_to_draft: 'Back to draft', reject: 'Rejected', hold: 'On hold', reopen: 'Reopened' }[act] || 'Done');
+    drawBlogEditor();
+    loadSummary();
+  })));
+}
+
+const slugify = (s) => (s || '').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 75).replace(/-+$/, '');
+
+async function saveBlog(showToast) {
+  const p = BLOG.post;
+  const data = {
+    title: $('#beTitle').value, primary_keyword: $('#beKw').value, intent: $('#beIntent').value || null,
+    planned_date: $('#beDate').value || null, cluster_id: $('#beCluster').value || null, campaign_id: await resolveCampaign($('#beCamp')),
+    topic: $('#beTopic').value, reason: $('#beReason').value, body_html: sanitizeHtml($('#beBody').innerHTML),
+    slug: $('#beSlug').value, categories: $('#beCats').value, seo_title: $('#beSeoTitle').value, meta_description: $('#beMeta').value,
+    excerpt: $('#beExcerpt').value, tags: $('#beTags').value, has_faq: $('#beFaq').checked, featured_alt: $('#beAlt').value, notes: $('#beNotes').value,
+  };
+  BLOG = await post(`/api/blog/${p.id}`, data);
+  dirty = false;
+  if (BLOG.reverted) toast('Content changed after approval, so the draft needs approval again.', 5000);
+  else if (showToast) toast('Saved');
+  drawBlogEditor();
+}
+
+// =====================================================================
+// CLUSTERS
+// =====================================================================
+async function renderClusters() {
+  const el = $('#tab-clusters');
+  await loadOptions().catch(() => {});
+  el.innerHTML = `
+    <div class="row"><h2 style="flex:1">Topic clusters</h2><button class="btn sm primary" id="ncBtn">+ Cluster</button></div>
+    <p class="small muted" style="margin-top:0">One cluster per Growthopedia service. Each has a pillar page on growthopedia.com; blog posts in the cluster link up to it, and the Plan tab shows which clusters got content each month.</p>
+    ${OPTIONS.clusters.map((c) => `<div class="card" data-id="${c.id}"><div class="row"><div style="flex:1;min-width:0"><div class="name"><b>${esc(c.name)}</b></div>
+      <div class="small ellipsis">${c.pillar_url ? `<a href="${esc(c.pillar_url)}" target="_blank" rel="noopener">${esc(c.pillar_url)}</a>` : '<span style="color:var(--warn)">No pillar page URL yet</span>'}</div>
+      ${c.keywords ? `<div style="margin-top:4px">${c.keywords.split(',').map((k) => k.trim()).filter(Boolean).map((k) => `<span class="tag">${esc(k)}</span>`).join('')}</div>` : ''}</div>
+      <button class="btn sm quiet" data-edit>Edit</button></div></div>`).join('') || `<div class="card empty">No clusters yet. Add one per service, e.g. Local SEO, Technical SEO, Content strategy, GEO / AI search.</div>`}`;
+  $('#ncBtn').onclick = () => clusterDialog({});
+  el.querySelectorAll('[data-edit]').forEach((b) => (b.onclick = () => clusterDialog(OPTIONS.clusters.find((c) => c.id === +b.closest('[data-id]').dataset.id))));
+}
+
+function clusterDialog(c) {
+  openDialog(c.id ? `Edit ${c.name}` : 'New cluster', `
+    <label class="f">Name</label><input id="clName" value="${esc(c.name || '')}" placeholder="Local SEO">
+    <label class="f">Pillar page URL</label><input id="clUrl" value="${esc(c.pillar_url || '')}" placeholder="https://www.growthopedia.com/local-seo">
+    <label class="f">Target keywords (comma-separated)</label><textarea id="clKw" style="min-height:70px">${esc(c.keywords || '')}</textarea>
+    <label class="f">Notes</label><textarea id="clNotes" style="min-height:70px">${esc(c.notes || '')}</textarea>
+    <div class="row" style="margin-top:14px"><button class="btn primary" id="clSave">Save</button>${c.id ? `<div class="spacer"></div><button class="btn danger" id="clDel">Delete</button>` : ''}</div>`, { narrow: true });
+  $('#clSave').onclick = () => guard(async () => {
+    await post(c.id ? `/api/clusters/${c.id}` : '/api/clusters', { name: $('#clName').value, pillar_url: $('#clUrl').value, keywords: $('#clKw').value, notes: $('#clNotes').value });
+    toast('Saved'); closeDialog(true);
+  });
+  if ($('#clDel')) $('#clDel').onclick = () => guard(async () => {
+    if (!confirm('Delete this cluster? Posts in it stay, without a cluster.')) return;
+    await api(`/api/clusters/${c.id}`, { method: 'DELETE' });
+    closeDialog(true);
+  });
+}
+
+// =====================================================================
+// SETTINGS
+// =====================================================================
+async function renderSettings() {
+  const el = $('#tab-settings');
+  let s;
+  try { s = await api('/api/settings'); } catch (e) { el.innerHTML = `<div class="banner bad">${esc(e.message)}</div>`; return; }
+  const f = (k, label, ph = '', area = false) => `<label class="f">${label}</label>${area ? `<textarea data-k="${k}" style="min-height:80px" placeholder="${esc(ph)}">${esc(s[k])}</textarea>` : `<input data-k="${k}" value="${esc(s[k])}" placeholder="${esc(ph)}">`}`;
+  el.innerHTML = `
+    <h2>Settings</h2>
+    <div class="card">
+      <h3>Connections</h3>
+      <ul class="checks" style="margin-top:8px">
+        <li class="${SUMMARY.gmailReady ? 'ok' : 'err'}"><span class="ic">${SUMMARY.gmailReady ? '✓' : '!'}</span><span>Reminder emails ${SUMMARY.gmailReady ? `go to ${esc(SUMMARY.notifyEmail)}` : 'are off. Add the GMAIL_* secrets (SETUP.md step 3).'}</span></li>
+        <li class="${SUMMARY.mediaReady ? 'ok' : 'err'}"><span class="ic">${SUMMARY.mediaReady ? '✓' : '!'}</span><span>Media storage (R2) ${SUMMARY.mediaReady ? 'connected' : 'not connected (SETUP.md step 1)'}</span></li>
+        <li class="warn"><span class="ic">i</span><span>Instagram auto publishing and the Canva picker arrive in Phases 2–3.</span></li>
+        <li class="${s._last_reminder_run ? 'ok' : 'warn'}"><span class="ic">${s._last_reminder_run ? '✓' : 'i'}</span><span>Reminder check ${s._last_reminder_run ? `last ran ${new Date(s._last_reminder_run).toLocaleString('en-US', { timeZone: TZ() })}` : 'hasn’t run yet (runs every 5 minutes once deployed)'}</span></li>
+      </ul>
+      <div class="row" style="margin-top:10px"><button class="btn sm quiet" id="testEmail" ${SUMMARY.gmailReady ? '' : 'disabled'}>Send a test reminder</button><button class="btn sm quiet" id="runNow">Check for due posts now</button></div>
+    </div>
+    <div class="card">
+      <h3>Posting defaults</h3>
+      <div class="grid3">${f('instagram_handle', 'Instagram handle', 'growthopedia.co')}${f('default_days', 'Default days', 'Tue,Thu')}${f('default_time', 'Default time (HH:MM)', '11:30')}</div>
+    </div>
+    <div class="card">
+      <h3>Brand voice</h3>
+      <p class="small muted" style="margin:2px 0 0">Used when Claude drafts captions and posts (Phase 3). Fill it in once.</p>
+      <div class="grid2">${f('audience', 'Who Growthopedia serves', 'Small and mid-size businesses and agencies…', true)}${f('tone', 'Tone', 'Plain-spoken, expert, no hype…', true)}${f('avoid', 'Words and claims to avoid', 'guaranteed rankings, “#1”, …', true)}${f('cta', 'Standard call to action', 'Book a free SEO audit at growthopedia.com', true)}</div>
+      ${f('link_in_bio', 'Link-in-bio wording', 'Link in bio for the full guide')}
+    </div>
+    <div class="card">
+      <h3>Blog, author and schema</h3>
+      <div class="grid2">${f('site_url', 'Website', 'https://www.growthopedia.com')}${f('blog_path', 'Blog path', '/blog')}${f('org_name', 'Business name')}${f('logo_url', 'Logo URL')}${f('author_name', 'Author name')}${f('author_title', 'Author title')}</div>
+      ${f('author_url', 'Author page or LinkedIn URL', 'https://www.linkedin.com/in/…')}
+      ${f('author_bio', 'Author bio (experience signals for Google and AI answers)', 'Founder of Growthopedia; previously at DEPT…', true)}
+    </div>
+    <button class="btn primary" id="saveSettings">Save settings</button>`;
+  $('#saveSettings').onclick = () => guard(async () => {
+    const data = {};
+    $$('[data-k]', el).forEach((i) => (data[i.dataset.k] = i.value.trim()));
+    if (data.default_time && !/^\d{1,2}:\d{2}$/.test(data.default_time)) throw new Error('Default time must look like 11:30');
+    await post('/api/settings', data);
+    toast('Settings saved');
+    loadSummary();
+  });
+  $('#testEmail').onclick = () => guard(async () => { const r = await post('/api/test-email'); toast(`Test sent to ${r.to}`); });
+  $('#runNow').onclick = () => guard(async () => { const r = await post('/api/run-reminders'); toast(`${r.posts} post reminder(s), ${r.blogs} blog reminder(s) sent${r.failed ? `, ${r.failed} failed` : ''}`); loadSummary(); });
+}
+
+// ---------- start ----------
+(async () => {
+  await loadSummary();
+  showTab((location.hash || '#plan').slice(1));
+  const hashTab = () => showTab((location.hash || '#plan').slice(1));
+  window.addEventListener('hashchange', hashTab);
+})();
+</script>
+</body>
+</html>

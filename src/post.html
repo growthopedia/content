@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Post to Instagram · Growthopedia</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Open+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#f4f2ea">
+<style>
+:root{--bg:#f4f2ea;--panel:#fbfaf6;--ink:#362e24;--muted:#736956;--line:#e4e0d8;--heading:#1a2e1a;--deep:#162418;--label:#5a8a5c;--gold:#f5e7b1;
+  --accent:#2d5a2e;--accent-soft:rgba(45,90,46,.09);--warn:#8a5a12;--warn-soft:#f5e7b1;--bad:#9b3a2a;--bad-soft:#f3dfd6;
+  --head-font:"Open Sans",system-ui,sans-serif;--body-font:"DM Sans",system-ui,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 var(--body-font);-webkit-font-smoothing:antialiased}
+main{max-width:560px;margin:0 auto;padding:16px 16px calc(32px + env(safe-area-inset-bottom))}
+h1{font:800 22px/1.25 var(--head-font);color:var(--heading);margin:4px 0 6px;letter-spacing:-.02em}
+h2{font:700 12px/1.2 var(--body-font);color:var(--label);text-transform:uppercase;letter-spacing:1.6px;margin:22px 0 8px}
+.top{display:flex;align-items:center;gap:10px}
+.top img{height:24px}
+.top a{margin-left:auto;font-size:14px;color:var(--accent)}
+.tag{display:inline-block;font:600 12px/1.4 var(--body-font);padding:3px 10px;border-radius:20px;background:var(--panel);border:1px solid var(--line);color:var(--muted);margin:2px 4px 2px 0}
+.tag.good{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}
+.banner{border-radius:12px;padding:12px 14px;margin:12px 0;font-size:14px}
+.banner.warn{background:var(--warn-soft);color:var(--warn)}
+.banner.bad{background:var(--bad-soft);color:var(--bad)}
+.banner.good{background:var(--accent-soft);color:var(--accent)}
+ol.steps{margin:0;padding-left:20px}
+ol.steps li{margin:6px 0}
+.media{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.media.one{grid-template-columns:1fr}
+.m{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#000}
+.m img,.m video{display:block;width:100%;height:auto;max-height:70vh;object-fit:contain;background:#fff}
+.m .n{position:absolute;top:8px;left:8px;background:rgba(22,36,24,.8);color:#fff;font-size:12px;border-radius:99px;padding:2px 8px}
+.m .save{display:flex;gap:6px;padding:8px;background:var(--panel)}
+.btn{font:600 15px/1.2 var(--body-font);border-radius:300px;padding:12px 18px;border:2px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer;text-align:center;text-decoration:none;display:inline-block}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.full{display:block;width:100%}
+.btn.sm{padding:8px 12px;font-size:13px;flex:1}
+.btn:disabled{opacity:.5}
+.copy{display:flex;flex-direction:column;gap:8px}
+.text{white-space:pre-wrap;word-break:break-word;font-size:15px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;max-height:260px;overflow:auto}
+input{font:inherit;width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--deep);color:var(--gold);padding:12px 20px;border-radius:300px;font-size:14px;z-index:20;max-width:90vw}
+.muted{color:var(--muted)}.small{font-size:13px}
+.banner a{color:inherit;font-weight:600}
+</style>
+</head>
+<body>
+<main id="app"><p class="muted">Loading…</p></main>
+<script>
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const id = location.pathname.split('/').pop();
+const mediaUrl = (key, dl) => `/media/${encodeURIComponent(key).replace(/%2F/g, '/')}${dl ? '?download=1' : ''}`;
+const FILES = {}; // media id -> File, fetched up front so the share sheet opens instantly on tap
+let D;
+
+function toast(msg, ms = 2600) {
+  const t = document.createElement('div');
+  t.className = 'toast'; t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), ms);
+}
+async function copy(text, what) {
+  try { await navigator.clipboard.writeText(text); toast(`${what} copied`); }
+  catch {
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); ta.remove(); toast(`${what} copied`);
+  }
+}
+const canShareFiles = (files) => Boolean(navigator.canShare && navigator.share && navigator.canShare({ files }));
+
+async function prefetch(items) {
+  await Promise.all(items.map(async (m) => {
+    try {
+      const r = await fetch(mediaUrl(m.r2_key));
+      if (!r.ok) return;
+      const b = await r.blob();
+      FILES[m.id] = new File([b], m.filename || `growthopedia-${m.position + 1}`, { type: m.content_type || b.type });
+    } catch {}
+  }));
+  document.querySelectorAll('[data-share]').forEach((b) => (b.disabled = false));
+  const all = $('#saveAll');
+  if (all) all.disabled = false;
+}
+
+async function share(files) {
+  try { await navigator.share({ files }); }
+  catch (e) { if (e.name !== 'AbortError') toast('Couldn’t open the share sheet. Use Download instead.', 4000); }
+}
+
+const STEPS = {
+  image: ['Tap <b>Save</b> under the image and choose <b>Save Image</b>.', 'Tap <b>Copy caption</b>.', 'In Instagram tap <b>+</b> → <b>Post</b>, pick the image, then <b>Next</b>.', 'Paste the caption. Under <b>Advanced settings → Accessibility</b>, paste the alt text.', 'Tap <b>Share</b>, then come back and tap <b>Mark as posted</b>.'],
+  carousel: ['Tap <b>Save all</b> and choose <b>Save Images</b> (they keep their order).', 'Tap <b>Copy caption</b>.', 'In Instagram tap <b>+</b> → <b>Post</b> → <b>Select multiple</b>, and pick the images in the numbered order.', 'Paste the caption. Add alt text under <b>Advanced settings → Accessibility</b>.', 'Tap <b>Share</b>, then come back and tap <b>Mark as posted</b>.'],
+  reel: ['Tap <b>Save</b> under the video and choose <b>Save Video</b>.', 'Tap <b>Copy caption</b>.', 'In Instagram tap <b>+</b> → <b>Reel</b>, pick the video, add music if you want, then <b>Next</b>.', 'Paste the caption and pick the cover frame.', 'Tap <b>Share</b>, then come back and tap <b>Mark as posted</b>.'],
+  story: ['Tap <b>Save</b> and choose <b>Save Image</b> or <b>Save Video</b>.', 'In Instagram tap <b>+</b> → <b>Story</b> and pick it.', 'Add any stickers, link or text.', 'Tap <b>Your story</b>, then come back and tap <b>Mark as posted</b>.'],
+};
+
+function render() {
+  const { post: p, media, fullCaption, typeLabel, whenLabel, handle } = D;
+  const items = media.filter((m) => m.kind !== 'cover');
+  const postable = ['draft_approved', 'scheduled', 'reminder_sent', 'needs_manual', 'failed'].includes(p.status);
+  const done = p.status === 'published';
+  const shareOk = canShareFiles([new File([''], 'x.jpg', { type: 'image/jpeg' })]);
+
+  $('#app').innerHTML = `
+    <div class="top"><img src="https://images.squarespace-cdn.com/content/v1/64642150deeb795976e61797/8e10d82e-0cbc-4749-a6ad-d7391405c81d/image0.png?format=300w" alt="Growthopedia"><a href="/#queue">Open the app</a></div>
+    <h1>${esc(p.title)}</h1>
+    <div><span class="tag">${esc(typeLabel)}</span><span class="tag">${esc(whenLabel)}</span><span class="tag">@${esc(handle)}</span>${done ? '<span class="tag good">Posted</span>' : ''}</div>
+    ${done ? `<div class="banner good">Marked as posted${p.ig_permalink ? `: <a href="${esc(p.ig_permalink)}" target="_blank" rel="noopener">view on Instagram</a>` : ''}.</div>` : ''}
+    ${!postable && !done ? `<div class="banner warn">This post isn’t approved yet, so it shouldn’t go out. Open it in the app to finish the approval.</div>` : ''}
+
+    ${!done ? `<h2>Steps</h2><div class="card"><ol class="steps">${STEPS[p.type].map((s) => `<li>${s}</li>`).join('')}</ol></div>` : ''}
+
+    <h2>${items.length > 1 ? `Media (${items.length}, in order)` : 'Media'}</h2>
+    ${items.length > 1 && shareOk ? `<button class="btn primary full" id="saveAll" disabled style="margin-bottom:10px">Save all ${items.length}</button>` : ''}
+    <div class="media ${items.length === 1 ? 'one' : ''}">
+      ${items.map((m, i) => `<div class="m">${m.kind === 'video'
+        ? `<video src="${mediaUrl(m.r2_key)}" controls playsinline preload="metadata"></video>`
+        : `<img src="${mediaUrl(m.r2_key)}" alt="">`}
+        ${items.length > 1 ? `<span class="n">${i + 1}</span>` : ''}
+        <div class="save">${shareOk ? `<button class="btn sm primary" data-share="${m.id}" disabled>Save</button>` : ''}<a class="btn sm" href="${mediaUrl(m.r2_key, true)}">Download</a></div></div>`).join('') || '<p class="muted">No media attached.</p>'}
+    </div>
+
+    ${p.type !== 'story' ? `
+      <h2>Caption</h2>
+      <div class="copy"><button class="btn primary full" id="copyCap">Copy caption</button><div class="text">${esc(fullCaption) || '<span class="muted">No caption</span>'}</div></div>
+      ${p.alt_text ? `<h2>Alt text</h2><div class="copy"><button class="btn full" id="copyAlt">Copy alt text</button><div class="text">${esc(p.alt_text)}</div></div>` : ''}
+      ${p.first_comment ? `<h2>First comment</h2><div class="copy"><button class="btn full" id="copyComment">Copy first comment</button><div class="text">${esc(p.first_comment)}</div><p class="small muted" style="margin:0">Post it as the first comment right after sharing.</p></div>` : ''}` : ''}
+
+    <h2>Instagram</h2>
+    <a class="btn full" href="https://www.instagram.com/" target="_blank" rel="noopener">Open Instagram</a>
+
+    ${postable ? `
+      <h2>Done?</h2>
+      <div class="card">
+        <label class="small muted" for="link">Optional: paste the link to the live post (… → Copy link)</label>
+        <input id="link" placeholder="https://www.instagram.com/p/…" inputmode="url" style="margin:6px 0 10px">
+        <button class="btn primary full" id="markPosted">Mark as posted</button>
+      </div>` : ''}`;
+
+  if ($('#copyCap')) $('#copyCap').onclick = () => copy(fullCaption, 'Caption');
+  if ($('#copyAlt')) $('#copyAlt').onclick = () => copy(p.alt_text, 'Alt text');
+  if ($('#copyComment')) $('#copyComment').onclick = () => copy(p.first_comment, 'First comment');
+  document.querySelectorAll('[data-share]').forEach((b) => (b.onclick = () => {
+    const f = FILES[b.dataset.share];
+    if (f) share([f]); else toast('Still loading. Try again in a second.');
+  }));
+  if ($('#saveAll')) $('#saveAll').onclick = () => {
+    const files = items.map((m) => FILES[m.id]).filter(Boolean);
+    if (files.length !== items.length) return toast('Still loading. Try again in a second.');
+    if (!canShareFiles(files)) return toast('This phone can’t save them all at once. Save each one in order.', 4000);
+    share(files);
+  };
+  if ($('#markPosted')) $('#markPosted').onclick = async () => {
+    const btn = $('#markPosted');
+    btn.disabled = true;
+    try {
+      const r = await fetch(`/api/posts/${id}/action`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: 'mark_posted', permalink: $('#link').value.trim() }) });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(data.error || 'Couldn’t mark it posted');
+      D = data;
+      render();
+      toast('Marked as posted');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (e) { btn.disabled = false; toast(e.message, 5000); }
+  };
+  if (shareOk) prefetch(items);
+}
+
+(async () => {
+  try {
+    const r = await fetch(`/api/posts/${id}`);
+    D = await r.json();
+    if (!r.ok) throw new Error(D.error || 'Couldn’t load this post');
+    render();
+  } catch (e) {
+    $('#app').innerHTML = `<div class="banner bad">${esc(e.message)}</div><a href="/">Open the app</a>`;
+  }
+})();
+</script>
+</body>
+</html>

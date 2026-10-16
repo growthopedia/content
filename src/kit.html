@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Paste kit · Growthopedia</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Open+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#f4f2ea">
+<style>
+:root{--bg:#f4f2ea;--panel:#fbfaf6;--ink:#362e24;--muted:#736956;--line:#e4e0d8;--heading:#1a2e1a;--deep:#162418;--label:#5a8a5c;--gold:#f5e7b1;
+  --accent:#2d5a2e;--accent-soft:rgba(45,90,46,.09);--warn:#8a5a12;--warn-soft:#f5e7b1;--bad:#9b3a2a;--bad-soft:#f3dfd6;--blog:#5b4a8a;
+  --head-font:"Open Sans",system-ui,sans-serif;--body-font:"DM Sans",system-ui,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 var(--body-font);-webkit-font-smoothing:antialiased}
+main{max-width:860px;margin:0 auto;padding:20px 16px 48px}
+h1{font:800 26px/1.25 var(--head-font);color:var(--heading);margin:6px 0;letter-spacing:-.02em}
+.top{display:flex;align-items:center;gap:10px}
+.top img{height:26px}
+.top .k{font:700 11px/1 var(--body-font);letter-spacing:2.2px;text-transform:uppercase;color:var(--label);padding-left:10px;border-left:1px solid var(--line)}
+.top a{margin-left:auto;font-size:14px;color:var(--accent)}
+.banner{border-radius:12px;padding:12px 14px;margin:12px 0;font-size:14px}
+.banner.warn{background:var(--warn-soft);color:var(--warn)}
+.banner.bad{background:var(--bad-soft);color:var(--bad)}
+.banner.good{background:var(--accent-soft);color:var(--accent)}
+.step{display:grid;grid-template-columns:36px 1fr;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px}
+.step .no{width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font:700 14px/1 var(--head-font)}
+.step.opt .no{background:var(--line);color:var(--muted)}
+.step h3{margin:4px 0 2px;font:700 16px/1.3 var(--head-font);color:var(--heading)}
+.where{font-size:13px;color:var(--muted);margin-bottom:8px}
+.val{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:15px;white-space:pre-wrap;word-break:break-word}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.btn{font:600 14px/1.2 var(--body-font);border-radius:300px;padding:9px 16px;border:2px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer;text-decoration:none;display:inline-block}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.done{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.count{font-size:12px;color:var(--muted)}
+.count.bad{color:var(--bad);font-weight:600}
+.body{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 20px;max-height:520px;overflow:auto;line-height:1.65}
+.body h2{font:700 22px/1.3 var(--head-font);margin:22px 0 8px;color:var(--heading)}
+.body h3{font:700 18px/1.3 var(--head-font);margin:18px 0 6px}
+pre{background:var(--deep);color:var(--gold);padding:12px;border-radius:12px;overflow:auto;font-size:12px;max-height:260px;margin:0}
+img.feat{width:100%;max-height:340px;object-fit:cover;border-radius:12px;border:1px solid var(--line);display:block}
+.checks{list-style:none;padding:0;margin:0;font-size:14px}
+.checks li{padding:4px 0}
+input{font:inherit;width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink)}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--deep);color:var(--gold);padding:12px 20px;border-radius:300px;font-size:14px;z-index:20;max-width:90vw}
+.muted{color:var(--muted)}.small{font-size:13px}
+</style>
+</head>
+<body>
+<main id="app"><p class="muted">Loading…</p></main>
+<script>
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const id = location.pathname.split('/').pop();
+const mediaUrl = (key, dl) => `/media/${encodeURIComponent(key).replace(/%2F/g, '/')}${dl ? '?download=1' : ''}`;
+let D;
+// Second safety net: only simple formatting tags are rendered, even if something odd was stored.
+function sanitizeHtml(input) {
+  const doc = new DOMParser().parseFromString(`<body>${input || ''}</body>`, 'text/html');
+  const KEEP = { P: 'p', H1: 'h2', H2: 'h2', H3: 'h3', H4: 'h4', STRONG: 'strong', B: 'strong', EM: 'em', I: 'em', A: 'a', UL: 'ul', OL: 'ol', LI: 'li', BLOCKQUOTE: 'blockquote', BR: 'br' };
+  const walk = (node) => {
+    let out = '';
+    for (const n of node.childNodes) {
+      if (n.nodeType === 3) { out += esc(n.textContent); continue; }
+      if (n.nodeType !== 1 || ['SCRIPT', 'STYLE', 'IFRAME', 'OBJECT', 'TEMPLATE', 'SVG'].includes(n.tagName.toUpperCase())) continue;
+      const inner = walk(n);
+      const tag = KEEP[n.tagName];
+      if (tag === 'br') out += '<br>';
+      else if (tag === 'a') { const h = (n.getAttribute('href') || '').trim(); out += /^(https?:|mailto:|tel:|\/|#)/i.test(h) ? `<a href="${esc(h)}">${inner}</a>` : inner; }
+      else out += tag ? `<${tag}>${inner}</${tag}>` : inner;
+    }
+    return out;
+  };
+  return walk(doc.body);
+}
+
+function toast(msg, ms = 2400) {
+  const t = document.createElement('div');
+  t.className = 'toast'; t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), ms);
+}
+function markDone(btn) { btn.classList.add('done'); btn.textContent = 'Copied ✓'; }
+async function copyText(text, btn) {
+  try { await navigator.clipboard.writeText(text); }
+  catch { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); }
+  markDone(btn);
+  toast('Copied');
+}
+// Copies the body as formatted text, so headings, lists, bold and links survive the paste into Squarespace.
+async function copyRich(html, el, btn) {
+  try {
+    await navigator.clipboard.write([new ClipboardItem({
+      'text/html': new Blob([html], { type: 'text/html' }),
+      'text/plain': new Blob([el.innerText], { type: 'text/plain' }),
+    })]);
+  } catch {
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    const sel = getSelection(); sel.removeAllRanges(); sel.addRange(range);
+    document.execCommand('copy'); sel.removeAllRanges();
+  }
+  markDone(btn);
+  toast('Body copied with formatting');
+}
+
+function render() {
+  const { post: p, checks, schema, url } = D;
+  const bodyHtml = sanitizeHtml(p.body_html);
+  const approved = p.status === 'draft_approved';
+  const published = p.status === 'published';
+  const failing = checks.filter((c) => !c.ok);
+  const step = (n, title, where, inner, opt = false) => `<div class="step ${opt ? 'opt' : ''}"><div class="no">${n}</div><div><h3>${title}</h3><div class="where">${where}</div>${inner}</div></div>`;
+  const field = (key, value, extra = '') => `<div class="val">${esc(value) || '<span class="muted">Empty</span>'}</div><div class="row"><button class="btn primary" data-copy="${key}" ${value ? '' : 'disabled'}>Copy</button>${extra}</div>`;
+  const len = (s, lo, hi) => { const n = (s || '').length; return `<span class="count ${n < lo || n > hi ? 'bad' : ''}">${n} characters (aim ${lo}–${hi})</span>`; };
+  const tagsLine = [p.categories ? `Categories: ${p.categories}` : '', p.tags ? `Tags: ${p.tags}` : ''].filter(Boolean).join('\n');
+
+  $('#app').innerHTML = `
+    <div class="top"><img src="https://images.squarespace-cdn.com/content/v1/64642150deeb795976e61797/8e10d82e-0cbc-4749-a6ad-d7391405c81d/image0.png?format=300w" alt="Growthopedia"><span class="k">Paste kit</span><a href="/#blog">Open the app</a></div>
+    <h1>${esc(p.title)}</h1>
+    <div class="small muted">${p.planned_date ? `Planned for ${esc(p.planned_date)} · ` : ''}${url ? esc(url) : ''}</div>
+    ${published ? `<div class="banner good">Published${p.published_url ? ` at <a href="${esc(p.published_url)}" target="_blank" rel="noopener">${esc(p.published_url)}</a>` : ''}.</div>`
+      : !approved ? `<div class="banner warn">Preview only. This draft isn’t approved yet, so don’t publish it.</div>` : ''}
+    ${failing.length ? `<div class="banner ${failing.some((c) => c.level === 'error') ? 'bad' : 'warn'}"><b>${failing.length} check(s) not passing:</b><ul class="checks">${failing.map((c) => `<li>${c.level === 'error' ? '!' : 'i'} ${esc(c.label)}${c.detail ? ` <span class="muted">(${esc(c.detail)})</span>` : ''}</li>`).join('')}</ul></div>` : ''}
+    <p class="small muted">In Squarespace: Pages → Blog → <b>+</b> to add a post. Fill in each field below in order.</p>
+
+    ${step(1, 'Title', 'Post title field at the top of the editor', field('title', p.title))}
+    ${step(2, 'Body', 'Click into the first text block and paste. Headings, lists, bold and links keep their formatting.',
+      `<div class="body" id="bodyHtml">${bodyHtml || '<p class="muted">No body yet</p>'}</div><div class="row"><button class="btn primary" id="copyBody">Copy body</button></div>`)}
+    ${step(3, 'Schema (optional)', 'Add a Code block at the very end of the post, set it to HTML, paste. Then test the live URL in Google’s Rich Results Test.',
+      `<pre>${esc(schema)}</pre><div class="row"><button class="btn" data-copy="schema">Copy schema</button></div>`, true)}
+    ${step(4, 'Post URL', 'Post settings → Options → Post URL. Paste after <b>/blog/</b>.', field('slug', p.slug))}
+    ${step(5, 'Excerpt', 'Post settings → Options → Excerpt', field('excerpt', p.excerpt))}
+    ${step(6, 'Featured image and alt text', 'Post settings → Options → Thumbnail. Upload the image, then add the alt text to it.',
+      `${p.featured_image_key ? `<img class="feat" src="${mediaUrl(p.featured_image_key)}" alt=""><div class="row"><a class="btn primary" href="${mediaUrl(p.featured_image_key, true)}">Download image</a></div>` : '<div class="val muted">No featured image uploaded</div>'}
+       <div style="margin-top:10px">${field('alt', p.featured_alt)}</div>`)}
+    ${step(7, 'Categories and tags', 'Post settings → Options → Categories / Tags', field('tags', tagsLine))}
+    ${step(8, 'SEO title and description', 'Post settings → SEO',
+      `<div class="small muted">SEO title · ${len(p.seo_title, 30, 60)}</div>${field('seo_title', p.seo_title)}
+       <div class="small muted" style="margin-top:12px">SEO description · ${len(p.meta_description, 120, 155)}</div>${field('meta', p.meta_description)}`)}
+    ${step(9, 'After you publish', 'Copy the live URL from your browser and paste it here. Then submit it in Google Search Console and Bing Webmaster Tools (URL inspection → Request indexing); ChatGPT search draws on Bing’s index.',
+      published ? `<div class="val">${esc(p.published_url || '')}</div>` : approved
+        ? `<input id="liveUrl" placeholder="${esc(url || 'https://www.growthopedia.com/blog/…')}" value="${esc(url || '')}" inputmode="url"><div class="row"><button class="btn primary" id="markPub">Mark as published</button></div>`
+        : '<div class="val muted">Approve the draft first.</div>')}`;
+
+  const values = { title: p.title, slug: p.slug, excerpt: p.excerpt, alt: p.featured_alt, tags: tagsLine, seo_title: p.seo_title, meta: p.meta_description, schema };
+  document.querySelectorAll('[data-copy]').forEach((b) => (b.onclick = () => copyText(values[b.dataset.copy] || '', b)));
+  $('#copyBody').onclick = () => copyRich(bodyHtml, $('#bodyHtml'), $('#copyBody'));
+  if ($('#markPub')) $('#markPub').onclick = async () => {
+    const btn = $('#markPub');
+    btn.disabled = true;
+    try {
+      const r = await fetch(`/api/blog/${id}/action`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: 'mark_published', url: $('#liveUrl').value.trim() }) });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(data.error || 'Couldn’t mark it published');
+      D = data;
+      render();
+      toast('Marked as published');
+    } catch (e) { btn.disabled = false; toast(e.message, 5000); }
+  };
+}
+
+(async () => {
+  try {
+    const r = await fetch(`/api/blog/${id}`);
+    D = await r.json();
+    if (!r.ok) throw new Error(D.error || 'Couldn’t load this post');
+    render();
+  } catch (e) {
+    $('#app').innerHTML = `<div class="banner bad">${esc(e.message)}</div><a href="/">Open the app</a>`;
+  }
+})();
+</script>
+</body>
+</html>
