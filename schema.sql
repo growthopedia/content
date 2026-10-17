@@ -38,10 +38,11 @@ CREATE TABLE IF NOT EXISTS posts (
   publish_mode TEXT NOT NULL DEFAULT 'manual',   -- manual | auto (auto arrives with Instagram publishing)
   status TEXT NOT NULL DEFAULT 'idea',
   -- idea -> topic_approved -> drafted -> draft_approved -> scheduled -> reminder_sent -> published
-  -- side exits: rejected, on_hold, needs_manual, failed
+  -- side exits: rejected, on_hold, needs_manual, failed, changes_requested (you asked for edits)
   topic_approved_at TEXT,
   draft_approved_at TEXT,
   rejection_reason TEXT,
+  change_note TEXT,                              -- what you asked to change
   reminder_sent_at TEXT,
   published_at TEXT,
   ig_media_id TEXT,
@@ -99,6 +100,7 @@ CREATE TABLE IF NOT EXISTS blog_posts (
   topic_approved_at TEXT,
   draft_approved_at TEXT,
   rejection_reason TEXT,
+  change_note TEXT,
   reminder_sent_at TEXT,
   published_url TEXT,
   published_at TEXT,

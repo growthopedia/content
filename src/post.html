@@ -98,7 +98,7 @@ const STEPS = {
   image: ['Tap <b>Save</b> under the image and choose <b>Save Image</b>.', 'Tap <b>Copy caption</b>.', 'In Instagram tap <b>+</b> → <b>Post</b>, pick the image, then <b>Next</b>.', 'Paste the caption. Under <b>Advanced settings → Accessibility</b>, paste the alt text.', 'Tap <b>Share</b>, then come back and tap <b>Mark as posted</b>.'],
   carousel: ['Tap <b>Save all</b> and choose <b>Save Images</b> (they keep their order).', 'Tap <b>Copy caption</b>.', 'In Instagram tap <b>+</b> → <b>Post</b> → <b>Select multiple</b>, and pick the images in the numbered order.', 'Paste the caption. Add alt text under <b>Advanced settings → Accessibility</b>.', 'Tap <b>Share</b>, then come back and tap <b>Mark as posted</b>.'],
   reel: ['Tap <b>Save</b> under the video and choose <b>Save Video</b>.', 'Tap <b>Copy caption</b>.', 'In Instagram tap <b>+</b> → <b>Reel</b>, pick the video, add music if you want, then <b>Next</b>.', 'Paste the caption and pick the cover frame.', 'Tap <b>Share</b>, then come back and tap <b>Mark as posted</b>.'],
-  story: ['Tap <b>Save</b> and choose <b>Save Image</b> or <b>Save Video</b>.', 'In Instagram tap <b>+</b> → <b>Story</b> and pick it.', 'Add any stickers, link or text.', 'Tap <b>Your story</b>, then come back and tap <b>Mark as posted</b>.'],
+  story: ['Tap <b>Save</b> (or <b>Save all</b>) to save the frames.', 'Follow the <b>Frame plan</b> below, in order. Reshares come from the post itself: open it and tap the paper-plane → <b>Add to story</b>.', 'For each saved frame: in Instagram tap <b>+</b> → <b>Story</b>, pick it, add the sticker (poll, question, quiz, slider or link), then <b>Your story</b>.', 'When every frame is up, come back and tap <b>Mark as posted</b>.'],
 };
 
 function render() {
@@ -126,6 +126,8 @@ function render() {
         ${items.length > 1 ? `<span class="n">${i + 1}</span>` : ''}
         <div class="save">${shareOk ? `<button class="btn sm primary" data-share="${m.id}" disabled>Save</button>` : ''}<a class="btn sm" href="${mediaUrl(m.r2_key, true)}">Download</a></div></div>`).join('') || '<p class="muted">No media attached.</p>'}
     </div>
+
+    ${p.type === 'story' && p.topic ? `<h2>Frame plan</h2><div class="card"><div class="text">${esc(p.topic)}</div></div>` : ''}
 
     ${p.type !== 'story' ? `
       <h2>Caption</h2>

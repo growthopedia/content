@@ -91,7 +91,7 @@ button.btn:disabled{opacity:.5;cursor:default}
 .chip.s-idea{border-left-style:dashed;opacity:.85}
 .chip.s-rejected,.chip.s-on_hold{opacity:.5}
 .chip.s-published{background:var(--accent-soft)}
-.chip.s-needs_manual,.chip.s-failed,.chip.s-reminder_sent{background:var(--warn-soft)}
+.chip.s-needs_manual,.chip.s-failed,.chip.s-reminder_sent,.chip.s-changes_requested{background:var(--warn-soft)}
 .agenda{display:none}
 @media (max-width:760px){.cal{display:none}.agenda{display:block}}
 .agenda .aday{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
@@ -215,8 +215,17 @@ const STATUS = {
   idea: ['Idea', 'info'], topic_approved: ['Topic approved', 'good'], drafted: ['Draft ready for review', 'warn'],
   draft_approved: ['Draft approved', 'good'], scheduled: ['Scheduled', 'good'], reminder_sent: ['Waiting for you to post', 'warn'],
   published: ['Published', 'good'], rejected: ['Rejected', 'bad'], on_hold: ['On hold', ''], needs_manual: ['Needs attention', 'bad'],
-  failed: ['Failed', 'bad'], publishing: ['Publishing', 'info'],
+  failed: ['Failed', 'bad'], publishing: ['Publishing', 'info'], changes_requested: ['Changes requested', 'warn'],
 };
+// Ask what to change. Returns null if cancelled.
+function askChanges() {
+  const n = prompt('What should change? Be specific (e.g. "Slide 3 headline is too long", "Use a warmer photo"). Claude reads this when you ask for edits.');
+  if (n === null) return null;
+  if (!n.trim()) { toast('Write what to change first.'); return null; }
+  return n.trim();
+}
+const changeBanner = (p) => p.status === 'changes_requested' && p.change_note
+  ? `<div class="banner warn" style="margin-top:10px"><b>Changes requested:</b> ${esc(p.change_note)}<br><span class="small">Make the edits (or ask Claude to), then tap <b>Resubmit for approval</b>.</span></div>` : '';
 const statusTag = (s) => `<span class="tag ${STATUS[s]?.[1] || ''}">${esc(STATUS[s]?.[0] || s)}</span>`;
 const POST_STEPS = ['idea', 'topic_approved', 'drafted', 'draft_approved', 'scheduled', 'reminder_sent', 'published'];
 const BLOG_STEPS = ['idea', 'topic_approved', 'drafted', 'draft_approved', 'published'];
@@ -491,6 +500,7 @@ async function renderApprove() {
   try { d = await api('/api/approvals'); } catch (e) { el.innerHTML = `<div class="banner bad">${esc(e.message)}</div>`; return; }
   const topics = [...d.blogs.filter((b) => b.status === 'idea').map((b) => ({ ...b, kind: 'blog' })), ...d.posts.filter((p) => p.status === 'idea').map((p) => ({ ...p, kind: 'post' }))];
   const drafts = [...d.blogs.filter((b) => b.status === 'drafted').map((b) => ({ ...b, kind: 'blog' })), ...d.posts.filter((p) => p.status === 'drafted').map((p) => ({ ...p, kind: 'post' }))];
+  const changes = [...d.blogs.filter((b) => b.status === 'changes_requested').map((b) => ({ ...b, kind: 'blog' })), ...d.posts.filter((p) => p.status === 'changes_requested').map((p) => ({ ...p, kind: 'post' }))];
 
   const meta = (it) => [
     it.kind === 'blog' ? `<span class="tag blog">Blog</span>` : `<span class="tag">${esc(TYPE_LABEL[it.type])}</span>`,
@@ -523,7 +533,7 @@ async function renderApprove() {
           <button class="btn sm primary" data-act="approve_draft" ${blockers.length ? 'disabled title="Fix the required items first"' : ''}>Approve draft</button>
           <button class="btn sm quiet" data-act="open">Read and edit</button>
           <a class="btn sm quiet" href="/kit/${it.id}" target="_blank">Paste kit preview</a>
-          <button class="btn sm danger" data-act="back_to_draft">Send back</button>
+          <button class="btn sm" data-act="request_changes">Request changes</button>
         </div></div>`;
     }
     const thumbs = it.media.filter((x) => x.kind !== 'cover').slice(0, 5).map((mm) => mm.kind === 'video'
@@ -539,9 +549,17 @@ async function renderApprove() {
       <div class="actions">
         <button class="btn sm primary" data-act="approve_draft" ${c.errors.length ? 'disabled' : ''}>Approve draft</button>
         <button class="btn sm quiet" data-act="open">Open</button>
-        <button class="btn sm danger" data-act="back_to_draft">Send back</button>
+        <button class="btn sm" data-act="request_changes">Request changes</button>
       </div></div>`;
   };
+
+  const changeCard = (it) => `
+    <div class="card" data-kind="${it.kind}" data-id="${it.id}">
+      <div class="name">${esc(it.title)}</div>
+      <div style="margin-top:4px">${meta(it)}</div>
+      <div class="banner warn" style="margin-top:8px"><b>You asked:</b> ${esc(it.change_note || '')}</div>
+      <div class="actions"><button class="btn sm primary" data-act="open">Open and edit</button></div>
+    </div>`;
 
   el.innerHTML = `
     <div class="row"><h2 style="flex:1">Approve</h2>${topics.length > 1 ? `<button class="btn sm quiet" id="approveAll">Approve all ${topics.length} topics</button>` : ''}</div>
@@ -549,7 +567,10 @@ async function renderApprove() {
     <div class="section-title">Topics to approve (${topics.length})</div>
     ${topics.map(topicCard).join('') || `<div class="card empty">No topics waiting. Add ideas on the Plan tab or import a month plan.</div>`}
     <div class="section-title">Drafts to approve (${drafts.length})</div>
-    ${drafts.map(draftCard).join('') || `<div class="card empty">No drafts waiting.</div>`}`;
+    ${drafts.map(draftCard).join('') || `<div class="card empty">No drafts waiting.</div>`}
+    ${changes.length ? `<div class="section-title">Changes requested (${changes.length})</div>
+    <p class="muted small" style="margin-top:0">Waiting on edits. Ask Claude to “do the requested changes” and it will work through these, then resubmit them.</p>
+    ${changes.map(changeCard).join('')}` : ''}`;
 
   el.querySelectorAll('[data-act]').forEach((b) => (b.onclick = async () => {
     const card = b.closest('[data-id]');
@@ -563,10 +584,11 @@ async function renderApprove() {
       if (reason === null) return;
       payload.reason = reason;
     }
+    if (act === 'request_changes') { const n = askChanges(); if (n === null) return; payload.note = n; }
     b.disabled = true;
     try {
       await post(`/api/${kind === 'blog' ? 'blog' : 'posts'}/${id}/action`, payload);
-      toast({ approve_topic: 'Topic approved', approve_draft: 'Draft approved', reject: 'Rejected', back_to_draft: 'Sent back to draft' }[act] || 'Done');
+      toast({ request_changes: 'Changes requested', approve_topic: 'Topic approved', approve_draft: 'Draft approved', reject: 'Rejected', back_to_draft: 'Sent back to draft' }[act] || 'Done');
       loadSummary();
       renderApprove();
     } catch (e) { b.disabled = false; toast(e.message, 6000); }
@@ -688,9 +710,10 @@ function postFlowButtons(p) {
   switch (p.status) {
     case 'idea': return b('approve_topic', 'Approve topic', 'primary') + b('hold', 'Hold') + b('reject', 'Reject', 'danger');
     case 'topic_approved': return b('submit_draft', 'Submit draft for approval', 'primary', errs ? 'disabled title="Fix the items marked ! first"' : '') + b('hold', 'Hold') + b('reject', 'Reject', 'danger');
-    case 'drafted': return b('approve_draft', 'Approve draft', 'primary', errs ? 'disabled' : '') + b('back_to_draft', 'Send back to draft') + b('reject', 'Reject', 'danger');
-    case 'draft_approved': return b('schedule', 'Schedule', 'primary', p.scheduled_at ? '' : 'disabled title="Set a date and time first"') + b('mark_posted', 'Mark posted') + b('back_to_draft', 'Back to draft');
-    case 'scheduled': return b('remind_now', 'Remind me now') + b('mark_posted', 'Mark posted') + b('unschedule', 'Unschedule');
+    case 'drafted': return b('approve_draft', 'Approve draft', 'primary', errs ? 'disabled' : '') + b('request_changes', 'Request changes') + b('reject', 'Reject', 'danger');
+    case 'changes_requested': return b('submit_draft', 'Resubmit for approval', 'primary', errs ? 'disabled title="Fix the items marked ! first"' : '') + b('hold', 'Hold') + b('reject', 'Reject', 'danger');
+    case 'draft_approved': return b('schedule', 'Schedule', 'primary', p.scheduled_at ? '' : 'disabled title="Set a date and time first"') + b('mark_posted', 'Mark posted') + b('request_changes', 'Request changes');
+    case 'scheduled': return b('remind_now', 'Remind me now') + b('mark_posted', 'Mark posted') + b('request_changes', 'Request changes') + b('unschedule', 'Unschedule');
     case 'reminder_sent': case 'needs_manual': case 'failed':
       return `<a class="btn sm primary" href="/p/${p.id}" target="_blank">Open post page</a>` + b('mark_posted', 'Mark posted') + b('unschedule', 'Unschedule');
     case 'on_hold': case 'rejected': return b('reopen', 'Reopen', 'primary');
@@ -713,7 +736,8 @@ function drawPostEditor() {
 
   openDialog(p.title, `
     <div class="flow"><span class="state">${esc(STATUS[p.status]?.[0] || p.status)}</span>${postFlowButtons(p)}<div class="spacer"></div>${!locked ? `<button class="btn sm primary" id="peSave">Save</button>` : ''}</div>
-    ${stepsHtml(POST_STEPS, ['needs_manual', 'failed'].includes(p.status) ? 'reminder_sent' : p.status)}
+    ${stepsHtml(POST_STEPS, ['needs_manual', 'failed'].includes(p.status) ? 'reminder_sent' : p.status === 'changes_requested' ? 'drafted' : p.status)}
+    ${changeBanner(p)}
     ${p.rejection_reason ? `<div class="banner bad" style="margin-top:10px">Rejected: ${esc(p.rejection_reason)}</div>` : ''}
     ${p.error ? `<div class="banner bad" style="margin-top:10px">${esc(p.error)}</div>` : ''}
     ${['draft_approved', 'scheduled', 'reminder_sent'].includes(p.status) ? `<div class="banner warn" style="margin-top:10px">Approved. Changing the caption, hashtags, alt text, type or media sends it back for approval.</div>` : ''}
@@ -734,7 +758,7 @@ function drawPostEditor() {
           <div><label class="f">Why this topic</label><textarea id="peReason" style="min-height:70px" ${locked ? 'disabled' : ''}>${esc(p.reason || '')}</textarea></div>
         </div>
 
-        <label class="f">Media ${p.type === 'carousel' ? '(2–10, in order)' : p.type === 'reel' ? '(1 video, 9:16)' : p.type === 'story' ? '(1 image or video, 9:16)' : '(1 image)'}</label>
+        <label class="f">Media ${p.type === 'carousel' ? '(2–10, in order)' : p.type === 'reel' ? '(1 video, 9:16)' : p.type === 'story' ? '(1–10 frames, 9:16, in posting order)' : '(1 image)'}</label>
         <div class="media-grid">${media.map((m, i) => `
           <div class="mitem" data-mid="${m.id}">
             ${m.kind === 'video' ? `<video src="${mediaUrl(m.r2_key)}#t=0.5" muted playsinline preload="metadata"></video>` : `<img src="${mediaUrl(m.r2_key)}" alt="">`}
@@ -743,7 +767,7 @@ function drawPostEditor() {
           </div>`).join('')}</div>
         ${locked ? '' : `<div class="drop-zone" id="peDrop" style="margin-top:10px">Drop images or videos here, or <u>choose files</u><br><span class="small">PNG and WebP become JPG automatically (Instagram’s format). Video under 100 MB.</span><input type="file" id="peFile" accept="image/*,video/mp4,video/quicktime" multiple hidden></div>`}
 
-        ${p.type === 'story' ? `<p class="small muted" style="margin-top:14px">Stories have no caption. Add stickers, links or text in the Instagram app when you post.</p>` : `
+        ${p.type === 'story' ? `<p class="small muted" style="margin-top:14px">Stories have no caption. Put the frame-by-frame plan (stickers, links, reshares) in Topic / angle; the post page shows it as the Frame plan.</p>` : `
         <label class="f">Caption</label><textarea id="peCaption" style="min-height:180px" ${locked ? 'disabled' : ''}>${esc(p.caption || '')}</textarea>
         <div class="counter" id="peCapCount"></div>
         <label class="f">Hashtags (added under the caption)</label><input id="peTags" value="${esc(p.hashtags || '')}" placeholder="#localseo #smallbusiness" ${locked ? 'disabled' : ''}>
@@ -789,8 +813,9 @@ function drawPostEditor() {
     const payload = { action: act };
     if (act === 'reject') { const r = prompt('Why reject it? (helps future plans)'); if (r === null) return; payload.reason = r; }
     if (act === 'mark_posted') { const l = prompt('Optional: paste the Instagram link to the post.', ''); if (l === null) return; payload.permalink = l.trim(); }
+    if (act === 'request_changes') { const n = askChanges(); if (n === null) return; payload.note = n; }
     EDIT = await post(`/api/posts/${p.id}/action`, payload);
-    toast({ approve_topic: 'Topic approved', submit_draft: 'Sent for approval', approve_draft: 'Draft approved', schedule: 'Scheduled. You’ll get an email at that time.', unschedule: 'Unscheduled', mark_posted: 'Marked posted', remind_now: 'Reminder sent', reject: 'Rejected', hold: 'On hold', reopen: 'Reopened', back_to_draft: 'Back to draft' }[act] || 'Done');
+    toast({ request_changes: 'Changes requested', approve_topic: 'Topic approved', submit_draft: 'Sent for approval', approve_draft: 'Draft approved', schedule: 'Scheduled. You’ll get an email at that time.', unschedule: 'Unscheduled', mark_posted: 'Marked posted', remind_now: 'Reminder sent', reject: 'Rejected', hold: 'On hold', reopen: 'Reopened', back_to_draft: 'Back to draft' }[act] || 'Done');
     drawPostEditor();
     loadSummary();
   })));
@@ -978,8 +1003,9 @@ function blogFlowButtons(p) {
   switch (p.status) {
     case 'idea': return b('approve_topic', 'Approve topic', 'primary') + b('hold', 'Hold') + b('reject', 'Reject', 'danger');
     case 'topic_approved': return b('submit_draft', 'Submit draft for approval', 'primary', blocking ? 'disabled title="Fix the required items first"' : '') + b('hold', 'Hold') + b('reject', 'Reject', 'danger');
-    case 'drafted': return b('approve_draft', 'Approve draft', 'primary', blocking ? 'disabled' : '') + `<a class="btn sm quiet" href="/kit/${p.id}" target="_blank">Paste kit preview</a>` + b('back_to_draft', 'Send back to draft');
-    case 'draft_approved': return `<a class="btn sm primary" href="/kit/${p.id}" target="_blank">Open Paste kit</a>` + b('back_to_draft', 'Back to draft');
+    case 'drafted': return b('approve_draft', 'Approve draft', 'primary', blocking ? 'disabled' : '') + `<a class="btn sm quiet" href="/kit/${p.id}" target="_blank">Paste kit preview</a>` + b('request_changes', 'Request changes');
+    case 'changes_requested': return b('submit_draft', 'Resubmit for approval', 'primary', blocking ? 'disabled title="Fix the required items first"' : '') + b('hold', 'Hold') + b('reject', 'Reject', 'danger');
+    case 'draft_approved': return `<a class="btn sm primary" href="/kit/${p.id}" target="_blank">Open Paste kit</a>` + b('request_changes', 'Request changes');
     case 'on_hold': case 'rejected': return b('reopen', 'Reopen', 'primary');
     case 'published': return p.published_url ? `<a class="btn sm quiet" href="${esc(p.published_url)}" target="_blank" rel="noopener">View live post</a>` : '';
     default: return '';
@@ -994,7 +1020,8 @@ function drawBlogEditor() {
   const featuredStyle = p.featured_image_key ? `style="background-image:url('${mediaUrl(p.featured_image_key)}')"` : '';
   openDialog(p.title, `
     <div class="flow"><span class="state">${esc(STATUS[p.status]?.[0] || p.status)}</span>${blogFlowButtons(p)}<div class="spacer"></div>${locked ? '' : `<button class="btn sm primary" id="beSave">Save</button>`}</div>
-    ${stepsHtml(BLOG_STEPS, p.status)}
+    ${stepsHtml(BLOG_STEPS, p.status === 'changes_requested' ? 'drafted' : p.status)}
+    ${changeBanner(p)}
     ${p.rejection_reason ? `<div class="banner bad" style="margin-top:10px">Rejected: ${esc(p.rejection_reason)}</div>` : ''}
     ${p.status === 'draft_approved' ? `<div class="banner warn" style="margin-top:10px">Approved. Editing the content sends it back for approval.</div>` : ''}
     ${locked ? `<div class="banner" style="margin-top:10px;background:var(--accent-soft)">Published${p.published_url ? ` at <a href="${esc(p.published_url)}" target="_blank" rel="noopener">${esc(p.published_url)}</a>` : ''}. Make further edits in Squarespace.</div>` : ''}
@@ -1122,8 +1149,9 @@ function drawBlogEditor() {
     if (dirty) await saveBlog(false);
     const payload = { action: act };
     if (act === 'reject') { const r = prompt('Why reject it? (helps future plans)'); if (r === null) return; payload.reason = r; }
+    if (act === 'request_changes') { const n = askChanges(); if (n === null) return; payload.note = n; }
     BLOG = await post(`/api/blog/${p.id}/action`, payload);
-    toast({ approve_topic: 'Topic approved', submit_draft: 'Sent for approval', approve_draft: 'Draft approved. The Paste kit is ready.', back_to_draft: 'Back to draft', reject: 'Rejected', hold: 'On hold', reopen: 'Reopened' }[act] || 'Done');
+    toast({ request_changes: 'Changes requested', approve_topic: 'Topic approved', submit_draft: 'Sent for approval', approve_draft: 'Draft approved. The Paste kit is ready.', back_to_draft: 'Back to draft', reject: 'Rejected', hold: 'On hold', reopen: 'Reopened' }[act] || 'Done');
     drawBlogEditor();
     loadSummary();
   })));

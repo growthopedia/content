@@ -28,6 +28,9 @@ test('reel needs one video; story has no caption requirement', () => {
   assert.ok(checkPost({ type: 'reel', caption: 'x' }, [img(1080, 1920)]).errors.length);
   assert.equal(checkPost({ type: 'reel', caption: 'x' }, [{ kind: 'video', width: 1080, height: 1920, position: 0 }]).errors.length, 0);
   assert.equal(checkPost({ type: 'story' }, [img(1080, 1920)]).errors.length, 0);
+  assert.equal(checkPost({ type: 'story', publish_mode: 'manual' }, [img(1080, 1920, 0), img(1080, 1920, 1)]).errors.length, 0);
+  assert.equal(checkPost({ type: 'story', publish_mode: 'auto' }, [img(1080, 1920, 0), img(1080, 1920, 1)]).errors.length, 1);
+  assert.equal(checkPost({ type: 'story' }, []).errors.length, 1);
 });
 
 test('keyword-in-first-line warning', () => {

@@ -23,6 +23,13 @@ async function ensureSchema(env) {
     .map((s) => s.trim())
     .filter(Boolean);
   await env.DB.batch(statements.map((s) => env.DB.prepare(s)));
+  // Columns added after launch. Each runs once; "duplicate column" means it's already there.
+  for (const sql of [
+    `ALTER TABLE posts ADD COLUMN change_note TEXT`,
+    `ALTER TABLE blog_posts ADD COLUMN change_note TEXT`,
+  ]) {
+    try { await env.DB.prepare(sql).run(); } catch (e) { if (!/duplicate column/i.test(String(e.message || e))) throw e; }
+  }
   schemaReady = true;
 }
 
@@ -242,8 +249,8 @@ async function setMeta(env, key, value) {
 
 async function summary(env) {
   const [toApprove, waiting, attention, scheduled, blogsDue, settings] = await Promise.all([
-    first(env, `SELECT (SELECT COUNT(*) FROM posts WHERE status IN ('idea','drafted'))
-                     + (SELECT COUNT(*) FROM blog_posts WHERE status IN ('idea','drafted')) n`),
+    first(env, `SELECT (SELECT COUNT(*) FROM posts WHERE status IN ('idea','drafted','changes_requested'))
+                     + (SELECT COUNT(*) FROM blog_posts WHERE status IN ('idea','drafted','changes_requested')) n`),
     first(env, `SELECT COUNT(*) n FROM posts WHERE status='reminder_sent'`),
     first(env, `SELECT COUNT(*) n FROM posts WHERE status IN ('needs_manual','failed')`),
     first(env, `SELECT COUNT(*) n FROM posts WHERE status='scheduled'`),
@@ -328,9 +335,9 @@ async function calendar(env, url) {
 async function approvals(env) {
   const [posts, blogs, clusters, settings, clashes] = await Promise.all([
     all(env, `SELECT p.*, c.name cluster_name FROM posts p LEFT JOIN clusters c ON c.id=p.cluster_id
-               WHERE p.status IN ('idea','drafted') ORDER BY p.scheduled_at IS NULL, p.scheduled_at, p.id`),
+               WHERE p.status IN ('idea','drafted','changes_requested') ORDER BY p.scheduled_at IS NULL, p.scheduled_at, p.id`),
     all(env, `SELECT b.*, c.name cluster_name FROM blog_posts b LEFT JOIN clusters c ON c.id=b.cluster_id
-               WHERE b.status IN ('idea','drafted') ORDER BY b.planned_date IS NULL, b.planned_date, b.id`),
+               WHERE b.status IN ('idea','drafted','changes_requested') ORDER BY b.planned_date IS NULL, b.planned_date, b.id`),
     all(env, `SELECT * FROM clusters`),
     getSettings(env),
     keywordClashes(env),
@@ -505,7 +512,7 @@ async function postAction(env, id, b) {
       await set(`status='topic_approved', topic_approved_at=datetime('now'), rejection_reason=NULL`);
       break;
     case 'submit_draft': {
-      need(['topic_approved'], 'submit');
+      need(['topic_approved', 'changes_requested'], 'submit');
       const { errors } = checkPost(p, media);
       if (errors.length) throw bad(`Fix before submitting: ${errors.join(' ')}`);
       await set(`status='drafted'`);
@@ -515,7 +522,14 @@ async function postAction(env, id, b) {
       need(['drafted'], 'approve the draft of');
       const { errors } = checkPost(p, media);
       if (errors.length) throw bad(`Fix before approving: ${errors.join(' ')}`);
-      await set(`status='draft_approved', draft_approved_at=datetime('now'), rejection_reason=NULL`);
+      await set(`status='draft_approved', draft_approved_at=datetime('now'), rejection_reason=NULL, change_note=NULL`);
+      break;
+    }
+    case 'request_changes': {
+      need(['drafted', ...APPROVED_POST_STATES], 'request changes to');
+      const note = str(b.note, 2000);
+      if (!note) throw bad('Say what to change.');
+      await set(`status='changes_requested', change_note=?, draft_approved_at=NULL, reminder_sent_at=NULL, attempts=0, error=NULL`, note);
       break;
     }
     case 'schedule': {
@@ -533,7 +547,7 @@ async function postAction(env, id, b) {
       await set(`status='draft_approved', reminder_sent_at=NULL, attempts=0, error=NULL`);
       break;
     case 'back_to_draft':
-      need(['drafted', ...APPROVED_POST_STATES], 'reopen');
+      need(['drafted', 'changes_requested', ...APPROVED_POST_STATES], 'reopen');
       await set(`status='topic_approved', draft_approved_at=NULL, reminder_sent_at=NULL, attempts=0, error=NULL`);
       break;
     case 'remind_now':
@@ -942,15 +956,22 @@ async function blogAction(env, id, b) {
     case 'submit_draft':
     case 'approve_draft': {
       const submitting = b.action === 'submit_draft';
-      need(submitting ? ['topic_approved'] : ['drafted'], submitting ? 'submit' : 'approve the draft of');
+      need(submitting ? ['topic_approved', 'changes_requested'] : ['drafted'], submitting ? 'submit' : 'approve the draft of');
       const blocking = blockingFailures(checkBlog(p, await blogContext(env, p)));
       if (blocking.length) throw bad(`Fix before ${submitting ? 'submitting' : 'approving'}: ${blocking.map((x) => x.label).join('; ')}.`);
       if (submitting) await set(`status='drafted'`);
-      else await set(`status='draft_approved', draft_approved_at=datetime('now'), rejection_reason=NULL, reminder_sent_at=NULL`);
+      else await set(`status='draft_approved', draft_approved_at=datetime('now'), rejection_reason=NULL, reminder_sent_at=NULL, change_note=NULL`);
+      break;
+    }
+    case 'request_changes': {
+      need(['drafted', 'draft_approved'], 'request changes to');
+      const note = str(b.note, 2000);
+      if (!note) throw bad('Say what to change.');
+      await set(`status='changes_requested', change_note=?, draft_approved_at=NULL, reminder_sent_at=NULL`, note);
       break;
     }
     case 'back_to_draft':
-      need(['drafted', 'draft_approved'], 'reopen');
+      need(['drafted', 'draft_approved', 'changes_requested'], 'reopen');
       await set(`status='topic_approved', draft_approved_at=NULL, reminder_sent_at=NULL`);
       break;
     case 'mark_published': {
@@ -962,11 +983,11 @@ async function blogAction(env, id, b) {
       break;
     }
     case 'reject':
-      need(['idea', 'topic_approved', 'drafted', 'draft_approved', 'on_hold'], 'reject');
+      need(['idea', 'topic_approved', 'drafted', 'draft_approved', 'changes_requested', 'on_hold'], 'reject');
       await set(`status='rejected', rejection_reason=?`, str(b.reason, 1000));
       break;
     case 'hold':
-      need(['idea', 'topic_approved', 'drafted', 'draft_approved'], 'hold');
+      need(['idea', 'topic_approved', 'drafted', 'draft_approved', 'changes_requested'], 'hold');
       await set(`status='on_hold'`);
       break;
     case 'reopen': {

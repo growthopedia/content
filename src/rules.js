@@ -29,7 +29,12 @@ export function checkPost(post, media) {
   if (type === 'image' && !(items.length === 1 && imgs.length === 1)) errors.push('A single-image post needs exactly 1 image.');
   if (type === 'carousel' && (items.length < 2 || items.length > 10)) errors.push(`A carousel needs 2–10 images or videos (has ${items.length}).`);
   if (type === 'reel' && !(vids.length === 1 && items.length === 1)) errors.push('A Reel needs exactly 1 video.');
-  if (type === 'story' && items.length !== 1) errors.push('A Story needs exactly 1 image or video.');
+  // Manual Stories can have several frames (you post them one after another).
+  // Automatic posting sends one frame per Story, so it needs exactly 1.
+  if (type === 'story') {
+    if (post.publish_mode === 'auto' && items.length !== 1) errors.push('An automatic Story needs exactly 1 image or video.');
+    else if (items.length < 1 || items.length > 10) errors.push(`A Story needs 1–10 frames (has ${items.length}).`);
+  }
 
   const caption = fullCaption(post);
   if (type !== 'story') {
