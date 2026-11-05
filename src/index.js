@@ -12,6 +12,7 @@ import { toSql, nowSql, parseUtc, zonedToUtc, localDate } from './time.js';
 import { sendEmail, emailReady } from './email.js';
 import { signedInEmail } from './access.js';
 import { importDrafts } from './drafts.js';
+import { canSendToSite, sendToSite } from './site.js';
 
 let schemaReady = false;
 async function ensureSchema(env) {
@@ -28,6 +29,7 @@ async function ensureSchema(env) {
   for (const sql of [
     `ALTER TABLE posts ADD COLUMN change_note TEXT`,
     `ALTER TABLE blog_posts ADD COLUMN change_note TEXT`,
+    `ALTER TABLE blog_posts ADD COLUMN site_sent_at TEXT`,
   ]) {
     try { await env.DB.prepare(sql).run(); } catch (e) { if (!/duplicate column/i.test(String(e.message || e))) throw e; }
   }
@@ -962,11 +964,19 @@ async function blogAction(env, id, b) {
       const blocking = blockingFailures(checkBlog(p, await blogContext(env, p)));
       if (blocking.length) throw bad(`Fix before ${submitting ? 'submitting' : 'approving'}: ${blocking.map((x) => x.label).join('; ')}.`);
       if (submitting) await set(`status='drafted'`);
-      else await set(`status='draft_approved', draft_approved_at=datetime('now'), rejection_reason=NULL, reminder_sent_at=NULL, change_note=NULL`);
+      else {
+        await set(`status='draft_approved', draft_approved_at=datetime('now'), rejection_reason=NULL, reminder_sent_at=NULL, change_note=NULL`);
+        if (canSendToSite(env)) {
+          const url = await sendToSite(env, p, 'published', localDate(new Date(), tz(env)));
+          await set(`published_url=?, site_sent_at=datetime('now')`, url);
+          await log(env, { blog_post_id: id, step: 'sent_to_site', detail: url });
+        }
+      }
       break;
     }
     case 'request_changes': {
       need(['drafted', 'draft_approved'], 'request changes to');
+      if (p.site_sent_at && canSendToSite(env)) { await sendToSite(env, p, 'review', localDate(new Date(), tz(env))); await set(`site_sent_at=NULL, published_url=NULL`); }
       const note = str(b.note, 2000);
       if (!note) throw bad('Say what to change.');
       await set(`status='changes_requested', change_note=?, draft_approved_at=NULL, reminder_sent_at=NULL`, note);
@@ -974,6 +984,7 @@ async function blogAction(env, id, b) {
     }
     case 'back_to_draft':
       need(['drafted', 'draft_approved', 'changes_requested'], 'reopen');
+      if (p.site_sent_at && canSendToSite(env)) { await sendToSite(env, p, 'review', localDate(new Date(), tz(env))); await set(`site_sent_at=NULL, published_url=NULL`); }
       await set(`status='topic_approved', draft_approved_at=NULL, reminder_sent_at=NULL`);
       break;
     case 'mark_published': {
@@ -986,6 +997,7 @@ async function blogAction(env, id, b) {
     }
     case 'reject':
       need(['idea', 'topic_approved', 'drafted', 'draft_approved', 'changes_requested', 'on_hold'], 'reject');
+      if (p.site_sent_at && canSendToSite(env)) { await sendToSite(env, p, 'review', localDate(new Date(), tz(env))); await set(`site_sent_at=NULL, published_url=NULL`); }
       await set(`status='rejected', rejection_reason=?`, str(b.reason, 1000));
       break;
     case 'hold':
@@ -1253,8 +1265,11 @@ export async function runReminders(env) {
   }
 
   const today = localDate(new Date(), tz(env));
+  // Posts sent to the site repo publish themselves on their date (the site's daily rebuild); mark them published here.
+  await run(env, `UPDATE blog_posts SET status='published', published_at=datetime('now'), updated_at=datetime('now')
+                  WHERE status='draft_approved' AND site_sent_at IS NOT NULL AND planned_date <= ?`, today);
   const blogs = await all(env,
-    `SELECT * FROM blog_posts WHERE status='draft_approved' AND planned_date <= ? AND reminder_sent_at IS NULL LIMIT 10`, today);
+    `SELECT * FROM blog_posts WHERE status='draft_approved' AND site_sent_at IS NULL AND planned_date <= ? AND reminder_sent_at IS NULL LIMIT 10`, today);
   for (const b of blogs) {
     const claim = await run(env, `UPDATE blog_posts SET reminder_sent_at=datetime('now') WHERE id=? AND reminder_sent_at IS NULL`, b.id);
     if (!claim.meta.changes) continue;
