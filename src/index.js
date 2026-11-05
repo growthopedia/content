@@ -11,6 +11,7 @@ import { POST_TYPES, TYPE_LABEL, checkPost, checkBlog, blockingFailures, fullCap
 import { toSql, nowSql, parseUtc, zonedToUtc, localDate } from './time.js';
 import { sendEmail, emailReady } from './email.js';
 import { signedInEmail } from './access.js';
+import { importDrafts } from './drafts.js';
 
 let schemaReady = false;
 async function ensureSchema(env) {
@@ -31,6 +32,7 @@ async function ensureSchema(env) {
     try { await env.DB.prepare(sql).run(); } catch (e) { if (!/duplicate column/i.test(String(e.message || e))) throw e; }
   }
   schemaReady = true;
+  try { await importDrafts(env); } catch (e) { console.error('draft import failed', e); }
 }
 
 const json = (data, status = 200) =>

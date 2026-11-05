@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "test": "node --test test/*.test.js"
+    "test": "node --test test/*.test.js",
+    "drafts": "node scripts/check-drafts.mjs && node scripts/pack-drafts.mjs"
   },
   "devDependencies": {
     "wrangler": "^4.0.0"
