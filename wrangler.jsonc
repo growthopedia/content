@@ -10,7 +10,7 @@
   "workers_dev": false,
   "routes": [{ "pattern": "content.growthopedia.com", "custom_domain": true }, { "pattern": "content.thecannizzos.com", "custom_domain": true }],
 
-  "rules": [{ "type": "Text", "globs": ["**/*.html", "**/*.sql"], "fallthrough": true }],
+  "rules": [{ "type": "Text", "globs": ["**/*.html", "**/*.sql", "**/*.css", "**/*.client.js"], "fallthrough": true }],
 
   "d1_databases": [
     {

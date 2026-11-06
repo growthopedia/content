@@ -1,8 +1,8 @@
 # Growthopedia Content
 
-Content calendar for @growthopedia.co on Instagram and the growthopedia.com blog. Every topic and every draft waits for your
-approval. Scheduled posts email you a reminder with a mobile post page (save media, copy caption, mark posted). Blog
-posts are checked against SEO and AI-search rules and get a Squarespace Paste kit.
+Content planner for the growthopedia.com blog: the same app as content.cribpicks.com. A publishing calendar (drag posts
+to a new day, then save), a review queue (approve, request changes, scrap), draft previews rendered like the live site,
+and topic clusters with a question wheel suggested by Claude. Approved posts go to the site repo and publish on their date.
 
 - **App:** https://content.growthopedia.com
 - **Setup:** see [SETUP.md](SETUP.md)

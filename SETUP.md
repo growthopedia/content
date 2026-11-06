@@ -61,3 +61,8 @@ Changing an approved post's caption, hashtags, alt text, type or media sends it 
 - Uploads must be under 100 MB each (Cloudflare's request limit).
 - Instagram auto publishing (Phase 2) and the Canva picker and Claude drafting inside the app (Phase 3) aren't built yet.
 - Squarespace has no blog API, so blog posts are always pasted in by hand from the Paste kit.
+
+## Secrets the app uses
+Cloudflare → **Workers & Pages** → `content` → **Settings** → **Variables and Secrets** → **Add** → type **Secret**:
+- `GITHUB_TOKEN`: a fine-grained GitHub token with **Contents: Read and write** on `growthopedia/growthopedia`. Approving a post (or moving an approved one on the calendar) writes it to the site repo.
+- `ANTHROPIC_API_KEY`: a Claude API key from console.anthropic.com. Used only by Clusters → Generate questions. Optional `CLAUDE_MODEL` variable picks the model (default `claude-sonnet-5-5`).

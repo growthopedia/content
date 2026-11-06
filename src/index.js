@@ -2,9 +2,7 @@
 // Plans the content calendar, holds every post until you approve it, stores media in R2,
 // and emails you when it's time to post (manual mode). Blog posts get a Squarespace Paste kit.
 
-import UI from './ui.html';
-import POST_PAGE from './post.html';
-import KIT_PAGE from './kit.html';
+import { handleApp, QW_SCHEMA } from './app.js';
 import SCHEMA from '../schema.sql';
 import SEED from '../seed.sql';
 import { POST_TYPES, TYPE_LABEL, checkPost, checkBlog, blockingFailures, fullCaption, schemaFor, postUrl, slugify, links, isInternal, cleanHtml } from './rules.js';
@@ -33,6 +31,7 @@ async function ensureSchema(env) {
   ]) {
     try { await env.DB.prepare(sql).run(); } catch (e) { if (!/duplicate column/i.test(String(e.message || e))) throw e; }
   }
+  await env.DB.prepare(QW_SCHEMA).run();
   schemaReady = true;
   try { await importDrafts(env); } catch (e) { console.error('draft import failed', e); }
 }
@@ -80,10 +79,11 @@ export default {
     const path = url.pathname;
     const method = request.method;
 
+    // The app (calendar, review queue, previews, clusters): same as content.cribpicks.com. See app.js.
+    const page = await handleApp(request, env, await signedInEmail(request, env), { blogAction, saveCluster, deleteCluster, createBlog });
+    if (page) return page;
+
     try {
-      if (method === 'GET' && (path === '/' || path === '/index.html')) return html(UI);
-      if (method === 'GET' && /^\/p\/\d+$/.test(path)) return html(POST_PAGE);
-      if (method === 'GET' && /^\/kit\/\d+$/.test(path)) return html(KIT_PAGE);
       if (method === 'GET' && path.startsWith('/media/')) {
         let key;
         try { key = decodeURIComponent(path.slice(7)); } catch { return new Response('Not found', { status: 404 }); }
@@ -101,27 +101,6 @@ export default {
       if (path === '/api/test-email' && method === 'POST') return json(await testEmail(env));
 
       let m;
-      // Instagram posts
-      if (path === '/api/posts' && method === 'POST') return json(await createPost(env, await body(request)));
-      if ((m = path.match(/^\/api\/posts\/(\d+)$/))) {
-        const id = Number(m[1]);
-        if (method === 'GET') return json(await getPost(env, id));
-        if (method === 'POST') return json(await updatePost(env, id, await body(request)));
-        if (method === 'DELETE') return json(await deletePost(env, id));
-      }
-      if ((m = path.match(/^\/api\/posts\/(\d+)\/action$/)) && method === 'POST')
-        return json(await postAction(env, Number(m[1]), await body(request)));
-      if ((m = path.match(/^\/api\/posts\/(\d+)\/media$/)) && method === 'POST')
-        return json(await uploadMedia(env, Number(m[1]), request, url));
-      if ((m = path.match(/^\/api\/posts\/(\d+)\/media\/from-url$/)) && method === 'POST')
-        return json(await mediaFromUrl(env, Number(m[1]), await body(request)));
-      if ((m = path.match(/^\/api\/blog\/(\d+)\/featured\/from-url$/)) && method === 'POST')
-        return json(await featuredFromUrl(env, Number(m[1]), await body(request)));
-      if ((m = path.match(/^\/api\/posts\/(\d+)\/media\/order$/)) && method === 'POST')
-        return json(await reorderMedia(env, Number(m[1]), await body(request)));
-      if ((m = path.match(/^\/api\/media\/(\d+)$/)) && method === 'DELETE')
-        return json(await deleteMedia(env, Number(m[1])));
-
       // Blog posts
       if (path === '/api/blog' && method === 'GET') return json(await listBlog(env));
       if (path === '/api/blog' && method === 'POST') return json(await createBlog(env, await body(request)));
@@ -144,12 +123,6 @@ export default {
         if (method === 'POST') return json(await saveCluster(env, Number(m[1]), await body(request)));
         if (method === 'DELETE') return json(await deleteCluster(env, Number(m[1])));
       }
-      if (path === '/api/campaigns' && method === 'POST') return json(await saveCampaign(env, null, await body(request)));
-      if ((m = path.match(/^\/api\/campaigns\/(\d+)$/))) {
-        if (method === 'POST') return json(await saveCampaign(env, Number(m[1]), await body(request)));
-        if (method === 'DELETE') return json(await deleteCampaign(env, Number(m[1])));
-      }
-
       if (path === '/api/run-reminders' && method === 'POST') return json(await runReminders(env));
 
       return json({ error: 'Not found' }, 404);
@@ -1244,26 +1217,7 @@ const MAX_REMINDER_ATTEMPTS = 12; // about an hour of retries at one run every 5
 export async function runReminders(env) {
   const now = nowSql();
   const out = { posts: 0, blogs: 0, failed: 0 };
-  const due = await all(env,
-    `SELECT * FROM posts WHERE status='scheduled' AND scheduled_at <= ? ORDER BY scheduled_at LIMIT 25`, now);
-  for (const p of due) {
-    // Claim the post so two overlapping runs can't email twice.
-    const claim = await run(env, `UPDATE posts SET attempts=attempts+1 WHERE id=? AND status='scheduled' AND attempts=?`, p.id, p.attempts);
-    if (!claim.meta.changes) continue;
-    try {
-      await sendPostReminder(env, p);
-      const next = p.publish_mode === 'manual' ? 'reminder_sent' : 'needs_manual';
-      await run(env, `UPDATE posts SET status=?, reminder_sent_at=datetime('now'), error=NULL, updated_at=datetime('now') WHERE id=?`, next, p.id);
-      out.posts++;
-    } catch (e) {
-      out.failed++;
-      const giveUp = p.attempts + 1 >= MAX_REMINDER_ATTEMPTS;
-      await run(env, `UPDATE posts SET error=?, status=?, updated_at=datetime('now') WHERE id=?`,
-        `Reminder email failed: ${e.message}`, giveUp ? 'needs_manual' : 'scheduled', p.id);
-      await log(env, { post_id: p.id, step: 'reminder_failed', ok: false, detail: e.message });
-    }
-  }
-
+  // Instagram scheduling was removed (Nov 2026); only blog posts are handled here.
   const today = localDate(new Date(), tz(env));
   // Posts sent to the site repo publish themselves on their date (the site's daily rebuild); mark them published here.
   await run(env, `UPDATE blog_posts SET status='published', published_at=datetime('now'), updated_at=datetime('now')
