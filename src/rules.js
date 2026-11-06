@@ -108,7 +108,23 @@ export function isInternal(href, siteUrl) {
 // Server-side safety net for stored blog HTML (the editor already cleans pastes):
 // drops scripts, embeds, inline event handlers and javascript: links.
 // Allowlist: only the tags Squarespace's text block uses survive, with no attributes except a safe link href.
-const ALLOWED_TAGS = new Set(['p', 'h2', 'h3', 'h4', 'strong', 'em', 'a', 'ul', 'ol', 'li', 'blockquote', 'br']);
+const ALLOWED_TAGS = new Set(['p', 'h2', 'h3', 'h4', 'strong', 'em', 'a', 'ul', 'ol', 'li', 'blockquote', 'br',
+  // Post kit (growthopedia.com renders these; see the site repo's concept/postkit.py)
+  'div', 'aside', 'figure', 'figcaption', 'span', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'pre', 'code', 'details', 'summary']);
+// Only post-kit classes (gk-*) and data-* attributes survive; everything else is stripped.
+const keepAttrs = (attrs) => {
+  let out = '';
+  const cls = attrs.match(/\bclass\s*=\s*(?:"([^"]*)"|'([^']*)')/i);
+  const kept = cls ? (cls[1] ?? cls[2]).split(/\s+/).filter((c) => /^gk-[a-z0-9-]+$/.test(c)) : [];
+  if (kept.length) out += ` class="${kept.join(' ')}"`;
+  for (const m of attrs.matchAll(/\b(data-[a-z0-9-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/gi)) {
+    out += ` ${m[1].toLowerCase()}="${escAttr((m[2] ?? m[3]).replace(/&quot;/g, '"').replace(/&amp;/g, '&'))}"`;
+  }
+  for (const m of attrs.matchAll(/\b(colspan|rowspan|scope)\s*=\s*(?:"([^"]*)"|'([^']*)'|(\w+))/gi)) {
+    out += ` ${m[1].toLowerCase()}="${escAttr(m[2] ?? m[3] ?? m[4])}"`;
+  }
+  return out;
+};
 const RENAME = { b: 'strong', i: 'em', h1: 'h2' };
 const escAttr = (s) => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
@@ -121,7 +137,7 @@ export function cleanHtml(html) {
       const name = RENAME[rawName.toLowerCase()] || rawName.toLowerCase();
       if (!ALLOWED_TAGS.has(name)) return '';
       if (closing) return name === 'br' ? '' : `</${name}>`;
-      if (name !== 'a') return `<${name}>`;
+      if (name !== 'a') return `<${name}${name === 'br' ? '' : keepAttrs(attrs)}>`;
       const m = attrs.match(/\bhref\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+))/i);
       const href = (m ? (m[1] ?? m[2] ?? m[3]) : '').replace(/&amp;/g, '&').trim();
       return /^(https?:|mailto:|tel:|\/|#)/i.test(href) && !/^\/\//.test(href) ? `<a href="${escAttr(href)}">` : '<a>';
