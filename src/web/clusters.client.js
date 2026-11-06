@@ -77,6 +77,9 @@ if (dataEl) {
     }
     tabs.innerHTML = GROUPS.map(([g, l]) => `<button type="button" data-group="${g}" aria-pressed="${g === group}">${l} <small>${items(g).reduce((a, [, L]) => a + L.length, 0)}</small></button>`).join('');
     box.innerHTML = `${view === 'wheel' ? `<div class="qw-wheel">${wheelSvg(group)}</div><p class="small muted">Click a question to add it as a blog idea.</p>` : listHtml(group)}<p class="small muted">Suggested by Claude${D.made ? ` on ${esc(D.made.slice(0, 10))}` : ''}. Not search volume data.</p>`;
+    // Trim the wheel's empty margins to what was actually drawn.
+    const svg = box.querySelector('.qw-wheel svg');
+    if (svg) { try { const b = svg.getBBox(), pad = 24; svg.setAttribute('viewBox', `${b.x - pad} ${b.y - pad} ${b.width + pad * 2} ${b.height + pad * 2}`); } catch { /* not rendered yet */ } }
   }
   const addIdea = async (q, el) => {
     if (added.has(q.toLowerCase())) return;
