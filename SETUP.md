@@ -1,6 +1,6 @@
 # Setup
 
-The app lives at **https://content.thecannizzos.com**, behind your Cloudflare Access login.
+The app lives at **https://content.growthopedia.com**, behind your Cloudflare Access login.
 Every push to `main` redeploys it through Cloudflare Workers Builds.
 
 Already done: the `content` Worker, the content.thecannizzos.com domain, and the D1 database (its ID is in `wrangler.jsonc`).
@@ -19,7 +19,7 @@ If Cloudflare asks you to turn on R2 first, it may ask for a payment method. Che
 1. Cloudflare → **Workers & Pages** → `content` → **Settings** → **Build** → **Connect**.
 2. Pick GitHub → `growthopedia/content` → branch `main`.
 3. Build command: leave empty. Deploy command: `npx wrangler deploy`.
-4. Save. The first deploy starts on its own. When it finishes, the workers.dev address is switched off, so the app is only reachable at content.thecannizzos.com.
+4. Save. The first deploy starts on its own. When it finishes, the workers.dev address is switched off, so the app is only reachable at content.growthopedia.com (content.thecannizzos.com keeps working too).
 
 ## 3. Reminder emails
 Nothing to do. Reminders go through Cloudflare Email Routing on thecannizzos.com, the same setup the finance dashboard
@@ -27,14 +27,14 @@ uses: from content@thecannizzos.com to jen.cannizzo@growthopedia.com (already a 
 Check it: open the app → **Settings** → **Send a test reminder**.
 
 ## 4. Login wall (Cloudflare Access)
-If content.thecannizzos.com isn't already covered by an Access policy:
+If content.growthopedia.com isn't already covered by an Access policy:
 
 1. Cloudflare → **Zero Trust** → **Access** → **Applications** → **Add an application** → **Self-hosted**.
-2. Name: `Growthopedia Content`. Domain: `content.thecannizzos.com`.
+2. Name: `Growthopedia Content`. Domain: `content.growthopedia.com`.
 3. Policy: Allow → Include → **Emails** → your email address(es).
 4. Save.
 
-Visit https://content.thecannizzos.com in a private window. You should see the Cloudflare login before the app.
+Visit https://content.growthopedia.com in a private window. You should see the Cloudflare login before the app.
 
 ## 5. Lock it to signed-in requests (recommended)
 This makes the app check Access's signed token on every request, so nothing can get in by faking a header.

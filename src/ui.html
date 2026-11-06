@@ -7,8 +7,8 @@
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Open+Sans:wght@600;700;800&display=swap" rel="stylesheet">
-<meta name="theme-color" content="#f4f2ea">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Fraunces:opsz,wght,SOFT,WONK@9..144,600,100,1&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#2f3b2c">
 <style>
 /* Same look as the outreach app and growthopedia.com: cream background, deep brown text, forest green accent. */
 :root{
@@ -185,12 +185,70 @@ pre.code{background:var(--deep);color:var(--gold);padding:12px;border-radius:12p
 .rte .gk-check::before{content:"Checklist (tick-off on the site)";font-weight:700;font-size:12px;display:block;margin-left:-18px}
 .rte table.gk-table{border-collapse:collapse;width:100%}.rte .gk-table th,.rte .gk-table td{border:1px solid var(--line);padding:6px 8px;text-align:left}
 .rte .gk-template pre{background:#f3eee2;border-radius:10px;padding:10px;white-space:pre-wrap}
+/* ---- Look matched to content.cribpicks.com (Nov 2026): forest top bar, parchment page, serif headings,
+   sentence-case tabs and labels, white calendar with tinted chips. Later rules override the ones above. ---- */
+:root{
+  --bg:#f8f4ea;--panel:#fffdf7;--ink:#2f3b2c;--muted:#5f6a58;--line:#e4dcc8;
+  --heading:#2f3b2c;--deep:#2f3b2c;--sage:#8fa382;--label:#5f6a58;--gold:#e9c46a;
+  --accent:#4f6b47;--accent-ink:#fffdf7;--accent-soft:#e6f0e1;
+  --warn:#6f5310;--warn-soft:#fff3c4;--bad:#a8432d;--bad-soft:#fde2dc;--info:#4f78a8;--info-soft:#e3edf8;
+  --blog:#4f78a8;--blog-soft:#e3edf8;
+  --radius:18px;--shadow:none;
+  --head-font:"Fraunces",Georgia,serif;--body-font:"Figtree",system-ui,sans-serif;
+}
+body{background:#fbf7ee;font:16px/1.55 var(--body-font)}
+h1,h2,h3{font-family:var(--head-font);font-weight:600;font-variation-settings:'SOFT' 100,'WONK' 1;letter-spacing:-.015em}
+h2{font-size:24px}
+header{position:sticky;top:0;background:#fbf7ee;backdrop-filter:none;border-bottom:0}
+.top{max-width:none;background:var(--ink);color:#fffdf7;padding:14px 24px}
+.brand{font:600 22px/1 var(--head-font);font-variation-settings:'SOFT' 100,'WONK' 1;color:#fffdf7}
+.brand .tagline{font:400 22px/1 var(--head-font);letter-spacing:0;text-transform:none;color:#fffdf7;opacity:.75;padding-left:2px;border-left:0}
+.top .pill{background:rgba(255,253,247,.14);color:#fffdf7}
+nav{max-width:1280px;padding:0 16px;margin:14px auto 0;gap:6px;border-bottom:2px solid var(--line)}
+nav button{font:600 16px/1.2 var(--body-font);letter-spacing:0;text-transform:none;color:var(--muted);padding:10px 14px;border-bottom:3px solid transparent;margin-bottom:-2px}
+nav button.on{color:var(--ink);border-color:var(--ink)}
+nav .count{background:var(--ink);color:#fffdf7}
+.card{border-radius:18px}
+label.f,.section-title,th,.cal .dow,.chip .k,.flow .state{text-transform:none;letter-spacing:0}
+label.f{font:700 13px/1.2 var(--body-font);color:var(--ink)}
+.section-title{font:600 18px/1.2 var(--head-font);font-variation-settings:'SOFT' 100,'WONK' 1;color:var(--ink)}
+th{font:700 12px/1.2 var(--body-font);color:var(--muted)}
+button.btn,a.btn{font:700 14px/1.2 var(--body-font);letter-spacing:0;border:0;padding:9px 16px;background:var(--panel);color:var(--accent);box-shadow:inset 0 0 0 2px var(--accent)}
+button.btn.primary,a.btn.primary{background:var(--accent);color:var(--accent-ink);box-shadow:none}
+button.btn.primary:hover{background:#3b5236}
+button.btn.quiet{box-shadow:inset 0 0 0 1px var(--line);color:var(--ink)}
+button.btn.danger{box-shadow:none;color:var(--bad)}
+button.btn.sm,a.btn.sm{padding:6px 12px;font-size:13px}
+.tag{font:700 12px/1.4 var(--body-font);letter-spacing:0}
+.toast{background:var(--ink);color:#fffdf7;border-radius:16px}
+input,select,textarea{border-radius:10px}
+
+/* Calendar */
+.month-head h2{font-size:26px}
+.cal{background:#fff;border-radius:18px}
+.cal .dow{font:700 12px/1 var(--body-font);color:var(--muted);background:#fff;padding:8px 10px}
+.cal .day{min-height:128px}
+.cal .day.out{background:repeating-linear-gradient(135deg,#faf8f3 0 8px,#f5f2ea 8px 16px)}
+.cal .day.out .num{opacity:.5}
+.cal .num{font:700 13px/1 var(--body-font);color:var(--muted)}
+.cal .day.today{box-shadow:inset 0 0 0 2px var(--gold)}
+.cal .day.today .num{background:var(--gold);color:var(--ink)}
+.cal .day.drop{outline:0;background:#eef4e9;box-shadow:inset 0 0 0 2px var(--accent)}
+.chip{border-left:4px solid var(--sage);background:#e6f0e1;border-radius:8px;padding:5px 7px;font:600 12.5px/1.3 var(--body-font);box-shadow:none}
+.chip .k{font:400 11px/1.2 var(--body-font);color:var(--muted)}
+.chip.blog{border-left-color:var(--blog);background:var(--blog-soft)}
+.chip.s-idea{background:transparent;border:1px dashed #c9c2b2;border-left:4px solid #9c9585;opacity:1;font-weight:500}
+.chip.s-published{background:var(--accent-soft);border-left-color:#6f8f63}
+.chip.s-needs_manual,.chip.s-failed,.chip.s-reminder_sent,.chip.s-changes_requested{background:var(--bad-soft);border-left-color:#c0573f}
+.agenda .adate{font:700 14px/1.2 var(--body-font);color:var(--ink)}
+dialog{border-radius:18px;background:var(--panel)}
+pre.code{background:var(--ink);color:#fffdf7}
 </style>
 </head>
 <body>
 <header>
   <div class="top">
-    <a class="brand" href="#plan"><img src="https://images.squarespace-cdn.com/content/v1/64642150deeb795976e61797/8e10d82e-0cbc-4749-a6ad-d7391405c81d/image0.png?format=300w" alt="Growthopedia"><span class="tagline">Content</span></a>
+    <a class="brand" href="#plan">Growthopedia <span class="tagline">Content</span></a>
     <div class="spacer"></div>
     <span class="pill" id="statusPill">–</span>
   </div>

@@ -4,7 +4,7 @@ Content calendar for @growthopedia.co on Instagram and the growthopedia.com blog
 approval. Scheduled posts email you a reminder with a mobile post page (save media, copy caption, mark posted). Blog
 posts are checked against SEO and AI-search rules and get a Squarespace Paste kit.
 
-- **App:** https://content.thecannizzos.com
+- **App:** https://content.growthopedia.com
 - **Setup:** see [SETUP.md](SETUP.md)
 - **Spec:** the "Growthopedia Content Scheduler — Build Spec" doc
 

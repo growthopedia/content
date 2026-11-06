@@ -8,7 +8,7 @@
 
   // Only reachable through the Access-protected custom domain.
   "workers_dev": false,
-  "routes": [{ "pattern": "content.thecannizzos.com", "custom_domain": true }],
+  "routes": [{ "pattern": "content.growthopedia.com", "custom_domain": true }, { "pattern": "content.thecannizzos.com", "custom_domain": true }],
 
   "rules": [{ "type": "Text", "globs": ["**/*.html", "**/*.sql"], "fallthrough": true }],
 
