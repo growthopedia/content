@@ -8,7 +8,7 @@
 
   // Only reachable through the Access-protected custom domain.
   "workers_dev": false,
-  "routes": [{ "pattern": "content.growthopedia.com", "custom_domain": true }, { "pattern": "content.thecannizzos.com", "custom_domain": true }],
+  "routes": [{ "pattern": "content.growthopedia.com", "custom_domain": true }],
 
   "rules": [{ "type": "Text", "globs": ["**/*.html", "**/*.sql", "**/*.css", "**/*.client.js"], "fallthrough": true }],
 
@@ -30,7 +30,7 @@
   "send_email": [{ "name": "SEND_EMAIL" }],
 
   "vars": {
-    "APP_URL": "https://content.thecannizzos.com",
+    "APP_URL": "https://content.growthopedia.com",
     "TIMEZONE": "America/New_York",
     // Reminder emails: sent from an address on thecannizzos.com to your verified address.
     "EMAIL_FROM": "Growthopedia Content <content@thecannizzos.com>",

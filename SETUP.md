@@ -19,7 +19,7 @@ If Cloudflare asks you to turn on R2 first, it may ask for a payment method. Che
 1. Cloudflare → **Workers & Pages** → `content` → **Settings** → **Build** → **Connect**.
 2. Pick GitHub → `growthopedia/content` → branch `main`.
 3. Build command: leave empty. Deploy command: `npx wrangler deploy`.
-4. Save. The first deploy starts on its own. When it finishes, the workers.dev address is switched off, so the app is only reachable at content.growthopedia.com (content.thecannizzos.com keeps working too).
+4. Save. The first deploy starts on its own. When it finishes, the workers.dev address is switched off, so the app is only reachable at content.growthopedia.com.
 
 ## 3. Reminder emails
 Nothing to do. Reminders go through Cloudflare Email Routing on thecannizzos.com, the same setup the finance dashboard
