@@ -12,6 +12,7 @@ import KIT_CSS from './web/postkit.css';
 import KIT_JS from './web/postkit.client.js';
 import { canSendToSite, sendToSite } from './site.js';
 import { localDate } from './time.js';
+import { listStores, getStore, saveStore, testStore, setBlog, deleteStore, oauthStart, oauthCallback, shopInfo } from './shopify.js';
 
 const SITE = 'https://www.growthopedia.com';
 const FONTS = 'https://fonts.googleapis.com/css2?family=Young+Serif&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700;6..12,800&display=swap';
@@ -48,7 +49,7 @@ async function waitingCount(env) {
   return (await first(env, `SELECT COUNT(*) n FROM blog_posts WHERE status='drafted'`)).n;
 }
 function nav(active, n) {
-  const l = [['/', 'Calendar', 'calendar'], ['/review/', `Review queue${n ? ` (${n})` : ''}`, 'review'], ['/clusters/', 'Clusters', 'clusters']];
+  const l = [['/', 'Calendar', 'calendar'], ['/review/', `Review queue${n ? ` (${n})` : ''}`, 'review'], ['/clusters/', 'Clusters', 'clusters'], ['/stores/', 'Shopify stores', 'stores']];
   return `<nav class="ct-tabs" aria-label="Content tools">${l.map(([h, t, k]) => `<a href="${h}"${k === active ? ' aria-current="page"' : ''}>${t}</a>`).join('')}<a href="${SITE}/blog" target="_blank" rel="noopener">Open the site</a></nav>`;
 }
 function shell(email, { title, body, status = 200 }) {
@@ -64,12 +65,12 @@ const json = (d, status = 200) => new Response(JSON.stringify(d), { status, head
 // ---------- calendar ----------
 async function calendarItems(env) {
   const t = today(env);
-  const rows = await all(env, `SELECT id, title, planned_date, status, categories, published_url, site_sent_at FROM blog_posts WHERE planned_date IS NOT NULL AND status != 'rejected'`);
+  const rows = await all(env, `SELECT b.id, b.title, b.planned_date, b.status, b.categories, b.published_url, b.site_sent_at, s.name AS store FROM blog_posts b LEFT JOIN stores s ON s.id=b.store_id WHERE b.planned_date IS NOT NULL AND b.status != 'rejected'`);
   return rows.map((p) => {
     const st = stateOf(p, t);
     if (!st) return null;
     const live = st === 'published' ? (p.published_url || null) : null;
-    return { k: String(p.id), slug: String(p.id), title: p.title, date: p.planned_date, status: st, menu: cats(p.categories)[0] || '', sub: '', preview: p.status !== 'idea' && p.status !== 'topic_approved' ? `/post/${p.id}/` : null, live };
+    return { k: String(p.id), slug: String(p.id), title: p.title, date: p.planned_date, status: st, menu: p.store || 'Growthopedia', sub: cats(p.categories)[0] || '', preview: p.status !== 'idea' && p.status !== 'topic_approved' ? `/post/${p.id}/` : null, live };
   }).filter(Boolean).sort((a, b) => a.date.localeCompare(b.date) || a.title.localeCompare(b.title));
 }
 async function calendarPage(env, email) {
@@ -122,7 +123,10 @@ async function move(env, b) {
 // ---------- review queue ----------
 async function reviewPage(env, email, url) {
   const t = today(env);
-  const rows = (await all(env, `SELECT id, title, planned_date, status, categories, change_note, published_url FROM blog_posts WHERE status != 'rejected' ORDER BY planned_date IS NULL, planned_date, id`))
+  const stores = await listStores(env);
+  const site = url.searchParams.get('site') || '';
+  const rows = (await all(env, `SELECT id, title, planned_date, status, categories, change_note, published_url, store_id FROM blog_posts WHERE status != 'rejected' ORDER BY planned_date IS NULL, planned_date, id`))
+    .filter((p) => !site || (site === 'g' ? !p.store_id : String(p.store_id) === site))
     .map((p) => ({ ...p, st: stateOf(p, t) })).filter((p) => p.st);
   const filter = url.searchParams.get('show') || 'upcoming';
   const shown = rows.filter((p) => filter === 'all' ? true : filter === 'review' ? p.st === 'review' : filter === 'published' ? p.st === 'published' : (p.planned_date && p.planned_date >= t) || p.st === 'review' || p.st === 'changes');
@@ -141,18 +145,20 @@ async function reviewPage(env, email, url) {
 <td class="gq-sel">${p.st === 'review' ? `<input type="checkbox" data-pick aria-label="Select ${esc(p.title)}">` : ''}</td>
 <td class="gq-date">${fmt(p.planned_date)}</td>
 <td class="gq-post">${hasBody(p) ? `<a href="/post/${p.id}/">${esc(p.title)}</a>` : `<b>${esc(p.title)}</b>`}<small>${esc(cats(p.categories).join(' · '))}</small>${p.change_note && p.st === 'changes' ? `<small class="gq-note">Your note: ${esc(p.change_note)}</small>` : ''}</td>
+<td>${stores.length ? (p.st === 'published' || p.st === 'scheduled' ? `<span class="small">${esc(stores.find((x) => x.id === p.store_id)?.name || 'Growthopedia')}</span>` : `<select class="gq-store" data-store-for="${p.id}" aria-label="Site for ${esc(p.title)}"><option value="">Growthopedia</option>${stores.map((x) => `<option value="${x.id}"${x.id === p.store_id ? ' selected' : ''}>${esc(x.name)}</option>`).join('')}</select>`) : ''}</td>
 <td><span class="gq-chip">${CHIP[p.st]}</span></td>
 <td><div class="gq-act">${acts(p)}</div></td></tr>`;
-  const opt = (k, l) => `<a href="?show=${k}"${filter === k ? ' aria-current="page"' : ''}>${l}</a>`;
+  const opt = (k, l) => `<a href="?show=${k}${site ? `&site=${site}` : ''}"${filter === k ? ' aria-current="page"' : ''}>${l}</a>`;
+  const siteNav = stores.length ? `<nav class="gq-filter">${[['', 'All sites'], ['g', 'Growthopedia'], ...stores.map((x) => [String(x.id), x.name])].map(([k, l]) => `<a href="?show=${filter}${k ? `&site=${k}` : ''}"${site === k ? ' aria-current="page"' : ''}>${esc(l)}</a>`).join('')}</nav>` : '';
   const nWait = count('review');
   return shell(email, { title: 'Review queue', body: `${nav('review', nWait)}
 <div class="ct-head"><h1>Blog posts to review</h1>
-<p class="lede">Approve, request changes or scrap a post right here. An approved post goes to growthopedia.com and publishes on its date with the site’s daily update. Requested changes go back to the writer, and the revised post comes back here.</p></div>
+<p class="lede">Approve, request changes or scrap. Approved posts publish on their date: Growthopedia posts on growthopedia.com, client posts on that client’s Shopify blog.</p></div>
 ${canSendToSite(env) ? '' : '<p class="gq-msg err">Sending to the site is off: add the GITHUB_TOKEN secret to the content Worker. Approving still works here, but posts won’t reach growthopedia.com until it’s added.</p>'}
 <div class="gq-top"><div><b>${nWait}</b><span>Waiting on you</span></div><div><b>${count('scheduled')}</b><span>Approved, scheduled</span></div><div><b>${count('published')}</b><span>Published</span></div><div><b>${count('planned')}</b><span>Planned</span></div></div>
-<nav class="gq-filter">${opt('upcoming', 'Upcoming')}${opt('review', 'Needs review')}${opt('published', 'Published')}${opt('all', 'Everything')}</nav>
+${siteNav}<nav class="gq-filter">${opt('upcoming', 'Upcoming')}${opt('review', 'Needs review')}${opt('published', 'Published')}${opt('all', 'Everything')}</nav>
 <div class="gq-msg" role="status" hidden></div>
-<div class="gq"><table><thead><tr><th>${nWait ? '<input type="checkbox" data-pick-all aria-label="Select all waiting posts">' : ''}</th><th>Date</th><th>Post</th><th>Status</th><th></th></tr></thead><tbody>${shown.map(row).join('') || '<tr><td colspan="5">Nothing here.</td></tr>'}</tbody></table></div>
+<div class="gq"><table><thead><tr><th>${nWait ? '<input type="checkbox" data-pick-all aria-label="Select all waiting posts">' : ''}</th><th>Date</th><th>Post</th><th>${stores.length ? 'Site' : ''}</th><th>Status</th><th></th></tr></thead><tbody>${shown.map(row).join('') || '<tr><td colspan="6">Nothing here.</td></tr>'}</tbody></table></div>
 <div class="gq-bulk" hidden><b data-pick-n>0 selected</b><button type="button" class="btn btn-sm" data-gq-bulk="approve">Approve selected</button><button type="button" class="btn btn-sm gq-scrap" data-gq-bulk="scrap">Scrap selected</button></div>
 <script type="module" src="/assets/review.js"></script>` });
 }
@@ -226,11 +232,12 @@ async function clustersPage(env, email) {
   return shell(email, { title: 'Clusters', body: `${nav('clusters', await waitingCount(env))}
 <div class="ct-head"><h1>Topic clusters</h1><p class="lede">Each cluster is a topic you want to own. Open one to see the questions people may ask around it, suggested by Claude from the cluster and the posts in it, and turn any question into a blog idea.</p></div>
 ${env.ANTHROPIC_API_KEY ? '' : '<p class="qw-note">To generate question wheels, add the ANTHROPIC_API_KEY secret to the content Worker. You can still add and edit clusters.</p>'}
-<details class="cl-new"${cl.length ? '' : ' open'}><summary>+ New cluster</summary>${clusterForm()}</details>
+<details class="cl-new"${cl.length ? '' : ' open'}><summary>+ New cluster</summary>${clusterForm({}, await listStores(env))}</details>
 <div class="cl-grid">${cl.map(card).join('') || '<p class="muted">No clusters yet.</p>'}</div>
 <script type="module" src="/assets/clusters.js"></script>` });
 }
-const clusterForm = (c = {}) => `<form class="cl-form" data-cluster-form="${c.id || ''}"><label>Name<input name="name" required maxlength="120" value="${esc(c.name || '')}" placeholder="Local SEO"></label>
+const clusterForm = (c = {}, stores = []) => `<form class="cl-form" data-cluster-form="${c.id || ''}"><label>Name<input name="name" required maxlength="120" value="${esc(c.name || '')}" placeholder="Local SEO"></label>
+${stores.length ? `<label>Site<select name="store_id"><option value="">Growthopedia</option>${stores.map((x) => `<option value="${x.id}"${x.id === c.store_id ? ' selected' : ''}>${esc(x.name)} (Shopify)</option>`).join('')}</select></label>` : ''}
 <label>Keywords (comma-separated)<textarea name="keywords" rows="2" maxlength="2000" placeholder="local seo, google business profile, local citations">${esc(c.keywords || '')}</textarea></label>
 <label>Pillar page on growthopedia.com (optional)<input name="pillar_url" maxlength="500" value="${esc(c.pillar_url || '')}" placeholder="https://www.growthopedia.com/local-seo"></label>
 <label>Notes (optional)<textarea name="notes" rows="2" maxlength="2000">${esc(c.notes || '')}</textarea></label>
@@ -251,7 +258,7 @@ async function clusterPage(env, email, id) {
 <div class="qw-tabs" role="group" aria-label="Group"></div>
 <div class="gq-msg" role="status" hidden></div>
 <div id="qw"></div>
-<details class="cl-new" style="margin-top:24px"><summary>Edit cluster</summary>${clusterForm(c)}</details>
+<details class="cl-new" style="margin-top:24px"><summary>Edit cluster</summary>${clusterForm(c, await listStores(env))}</details>
 ${posts.length ? `<h2 style="margin-top:28px">Posts in this cluster</h2><ul>${posts.map((p) => `<li>${p.status === 'idea' || p.status === 'topic_approved' ? esc(p.title) : `<a href="/post/${p.id}/">${esc(p.title)}</a>`} <span class="small muted">${esc(LABEL[stateOf(p, today(env))] || '')}${p.planned_date ? ` · ${esc(p.planned_date)}` : ''}</span></li>`).join('')}</ul>` : ''}
 <script type="application/json" id="qw-data">${JSON.stringify(data).replace(/</g, '\\u003c')}</script>
 <script type="module" src="/assets/clusters.js"></script>` });
@@ -297,6 +304,48 @@ Rules: 3 to 6 items per question word and 2 to 4 per preposition and comparison.
   return { ok: true, wheel, total };
 }
 
+// ---------- Shopify stores ----------
+async function storesPage(env, email, url) {
+  const stores = await listStores(env);
+  const ok = url.searchParams.get('connected');
+  const keyMissing = !env.STORE_KEY;
+  const suggested = keyMissing ? [...crypto.getRandomValues(new Uint8Array(24))].map((x) => x.toString(16).padStart(2, '0')).join('') : '';
+  const card = (x) => `<div class="st-card" data-store="${x.id}"><div class="st-h"><h2>${esc(x.name)}</h2><span class="gq-chip">${x.blog_id ? 'Connected' : 'Not connected'}</span></div>
+<p class="small">${esc(x.shop)}${x.domain ? ` · <a href="${esc(x.domain)}" target="_blank" rel="noopener">${esc(x.domain.replace(/^https?:\/\//, ''))}</a>` : ''}${x.blog_title ? ` · posts to the <b>${esc(x.blog_title)}</b> blog` : ''}${x.author ? ` · author ${esc(x.author)}` : ''}</p>
+<div class="st-acts"><button type="button" class="btn btn-sm btn-ghost" data-st-test>Check connection</button>${x.client_id ? `<a class="btn btn-sm btn-ghost" href="/shopify/connect/${x.id}">Connect with Shopify</a>` : ''}<button type="button" class="gq-link" data-st-edit>Edit</button><button type="button" class="gq-link gq-x" data-st-del>Remove</button></div>
+<div class="st-blogs" hidden><label>Blog to post to<select data-st-blog></select></label></div><p class="small" data-st-msg role="status"></p>${form(x)}</div>`;
+  const form = (x) => `<form class="st-form" data-st-form="${x ? x.id : ''}"${x ? ' hidden' : ''}>
+<div class="st-grid"><label>Client name<input name="name" required maxlength="80" value="${esc(x?.name || '')}" placeholder="Acme Bakery"></label>
+<label>Store address<input name="shop" required value="${esc(x?.shop || '')}" placeholder="acme-bakery.myshopify.com"></label>
+<label>Author name on posts<input name="author" maxlength="80" value="${esc(x?.author || '')}" placeholder="Acme Bakery"></label></div>
+<div class="st-grid"><label>Client ID<input name="client_id" value="${esc(x?.client_id || '')}" autocomplete="off"></label><label>Client secret<input name="client_secret" type="password" autocomplete="off" placeholder="${x ? 'Saved; type to replace' : ''}"></label>
+<label>Or an Admin API access token<input name="access_token" type="password" autocomplete="off" placeholder="shpat_… (older custom apps)"></label></div>
+<button class="btn btn-sm" type="submit">${x ? 'Save' : 'Add store'}</button></form>`;
+  return shell(email, { title: 'Shopify stores', body: `${nav('stores', await waitingCount(env))}
+<div class="ct-head"><h1>Shopify stores</h1><p class="lede">Clients whose blog posts publish straight to their Shopify store. Set a post’s site in the Review queue, or give a cluster a store so its ideas belong to that client.</p></div>
+${keyMissing ? `<p class="gq-msg err" style="display:block">First, add a secret named <b>STORE_KEY</b> to the content Worker (Cloudflare → Workers → content → Settings → Variables and Secrets) so store logins are saved encrypted. You can use this value: <code>${suggested}</code></p>` : ''}
+${ok ? '<p class="gq-msg" style="display:block">Connected. Pick the blog below if the store has more than one.</p>' : ''}
+${stores.map(card).join('')}
+<div class="st-card"><h2>Add a store</h2>${form(null)}
+<details class="st-how"><summary>How to get the Client ID and secret</summary><ol>
+<li>In the <a href="https://dev.shopify.com/dashboard" target="_blank" rel="noopener">Shopify Dev Dashboard</a>, create an app (e.g. “Growthopedia Content”).</li>
+<li>In its version settings, add the scopes <code>read_content</code>, <code>write_content</code> and <code>write_files</code>, and the redirect URL <code>${esc(env.APP_URL || 'https://content.growthopedia.com')}/shopify/callback</code>. Release the version.</li>
+<li>Copy the Client ID and Client secret from the app’s Settings into the form above.</li>
+<li>Store in your own Shopify organization: install the app on it, then Add store. Client’s store: Add store, then press <b>Connect with Shopify</b> and have the owner (or you, as their collaborator) approve it once.</li></ol>
+<p class="small">Client stores outside your organization may need the app set to custom distribution for that store in the Dev Dashboard first.</p></details></div>
+<script>${STORES_JS}</script>` });
+}
+const STORES_JS = `(()=>{const api=async(u,m,b)=>{const r=await fetch(u,{method:m,headers:{'content-type':'application/json'},body:b?JSON.stringify(b):undefined});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'Something went wrong');return d};
+const show=(card,t)=>{const m=card.querySelector('[data-st-msg]');if(m)m.textContent=t};
+const blogs=(card,d)=>{const box=card.querySelector('.st-blogs');if(!box||!d.blogs)return;const sel=box.querySelector('select');sel.innerHTML=d.blogs.map(b=>'<option value="'+b.id+'">'+b.title.replace(/</g,'&lt;')+'</option>').join('');box.hidden=d.blogs.length<2};
+document.addEventListener('submit',async e=>{const f=e.target.closest('[data-st-form]');if(!f)return;e.preventDefault();const id=f.dataset.stForm;const b=Object.fromEntries(new FormData(f));const btn=f.querySelector('button');btn.disabled=true;
+try{const d=await api(id?'/api/stores/'+id:'/api/stores','POST',b);if(d.connected){location.reload()}else{alert(d.needsOauth?'Saved. This is a client store: press Connect with Shopify to approve it.':'Saved, but the connection failed: '+d.error);location.reload()}}catch(x){alert(x.message);btn.disabled=false}});
+document.addEventListener('click',async e=>{const card=e.target.closest('[data-store]');if(!card)return;const id=card.dataset.store;
+if(e.target.closest('[data-st-edit]')){const f=card.querySelector('form');f.hidden=!f.hidden;return}
+if(e.target.closest('[data-st-test]')){show(card,'Checking…');try{const d=await api('/api/stores/'+id+'/test','POST',{});show(card,d.connected?'Connected to '+d.shopName+'.':d.error);blogs(card,d)}catch(x){show(card,x.message)}return}
+const del=e.target.closest('[data-st-del]');if(del){if(del.dataset.sure!=='1'){del.dataset.sure='1';del.textContent='Yes, remove it';return}try{await api('/api/stores/'+id,'DELETE');card.remove()}catch(x){show(card,x.message)}}});
+document.addEventListener('change',async e=>{const s=e.target.closest('[data-st-blog]');if(!s)return;const card=s.closest('[data-store]');try{await api('/api/stores/'+card.dataset.store+'/blog','POST',{blog_id:s.value});show(card,'Blog saved.')}catch(x){show(card,x.message)}});})();`;
+
 // ---------- router ----------
 // Returns a Response for the app's pages and APIs, or null to let index.js handle the path.
 export async function handleApp(request, env, email, { blogAction, saveCluster, deleteCluster, createBlog }) {
@@ -309,6 +358,25 @@ export async function handleApp(request, env, email, { blogAction, saveCluster, 
     if (m === 'GET' && (p === '/' || p === '/index.html')) return await calendarPage(env, email);
     if (m === 'GET' && p === '/review/') return await reviewPage(env, email, url);
     if (m === 'GET' && p === '/clusters/') return await clustersPage(env, email);
+    if (m === 'GET' && p === '/stores/') return await storesPage(env, email, url);
+    if (m === 'GET' && (r = p.match(/^\/shopify\/connect\/(\d+)$/))) return Response.redirect(await oauthStart(env, Number(r[1]), env.APP_URL || url.origin), 302);
+    if (m === 'GET' && p === '/shopify/callback') { await oauthCallback(env, url); return Response.redirect(new URL('/stores/?connected=1', url), 302); }
+    if (m === 'POST' && p === '/api/stores') return json(await saveStore(env, null, await body()));
+    if ((r = p.match(/^\/api\/stores\/(\d+)$/))) {
+      if (m === 'POST') return json(await saveStore(env, Number(r[1]), await body()));
+      if (m === 'DELETE') return json(await deleteStore(env, Number(r[1])));
+    }
+    if (m === 'POST' && (r = p.match(/^\/api\/stores\/(\d+)\/test$/))) return json(await testStore(env, Number(r[1])));
+    if (m === 'POST' && (r = p.match(/^\/api\/stores\/(\d+)\/blog$/))) return json(await setBlog(env, Number(r[1]), String((await body()).blog_id || '')));
+    if (m === 'POST' && (r = p.match(/^\/api\/blog\/(\d+)\/store$/))) {
+      const b = await body(), sid = Number(b.store_id) || null;
+      const post = await first(env, `SELECT status, shopify_article_id, site_sent_at FROM blog_posts WHERE id=?`, Number(r[1]));
+      if (!post) throw fail('Post not found', 404);
+      if (post.shopify_article_id || post.site_sent_at) throw fail('This post was already sent to a site. Request changes first, then move it.');
+      if (sid && !(await getStore(env, sid))) throw fail('Store not found', 404);
+      await run(env, `UPDATE blog_posts SET store_id=?, updated_at=datetime('now') WHERE id=?`, sid, Number(r[1]));
+      return json({ ok: true });
+    }
     if (m === 'GET' && (r = p.match(/^\/clusters\/(\d+)\/$/))) return await clusterPage(env, email, Number(r[1]));
     if (m === 'GET' && (r = p.match(/^\/post\/(\d+)\/$/))) return await preview(env, Number(r[1]));
     if (m === 'POST' && p === '/api/move') return json(await move(env, await body()));

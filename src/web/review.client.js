@@ -41,3 +41,15 @@ document.addEventListener('click', async (e) => {
     await send(ids, d, '', t);
   }
 });
+
+// Site per post: Growthopedia or one of the client Shopify stores.
+document.addEventListener('change', async (e) => {
+  const sel = e.target.closest('[data-store-for]'); if (!sel) return;
+  sel.disabled = true;
+  try {
+    const r = await fetch(`/api/blog/${sel.dataset.storeFor}/store`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ store_id: sel.value || null }) });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(d.error || 'Could not change the site');
+  } catch (x) { alert(x.message); location.reload(); }
+  sel.disabled = false;
+});

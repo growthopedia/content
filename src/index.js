@@ -11,6 +11,7 @@ import { sendEmail, emailReady } from './email.js';
 import { signedInEmail } from './access.js';
 import { importDrafts } from './drafts.js';
 import { canSendToSite, sendToSite } from './site.js';
+import { STORE_SCHEMA, STORE_COLUMNS, sendToShopify, hideOnShopify } from './shopify.js';
 
 let schemaReady = false;
 async function ensureSchema(env) {
@@ -28,10 +29,12 @@ async function ensureSchema(env) {
     `ALTER TABLE posts ADD COLUMN change_note TEXT`,
     `ALTER TABLE blog_posts ADD COLUMN change_note TEXT`,
     `ALTER TABLE blog_posts ADD COLUMN site_sent_at TEXT`,
+    ...STORE_COLUMNS,
   ]) {
     try { await env.DB.prepare(sql).run(); } catch (e) { if (!/duplicate column/i.test(String(e.message || e))) throw e; }
   }
   await env.DB.prepare(QW_SCHEMA).run();
+  for (const sql of STORE_SCHEMA) await env.DB.prepare(sql).run();
   schemaReady = true;
   try { await importDrafts(env); } catch (e) { console.error('draft import failed', e); }
 }
@@ -876,6 +879,9 @@ async function createBlog(env, b) {
     ...cols.map((k) => vals[k]), approve ? 'topic_approved' : 'idea', approve ? nowSql() : null);
   const id = r.meta.last_row_id;
   if (vals.campaign_id) await run(env, `UPDATE campaigns SET blog_post_id=COALESCE(blog_post_id, ?) WHERE id=?`, id, vals.campaign_id);
+  // Ideas from a client's cluster belong to that client's store.
+  if (vals.cluster_id) await run(env, `UPDATE blog_posts SET store_id=(SELECT store_id FROM clusters WHERE id=?) WHERE id=?`, vals.cluster_id, id);
+  else if (Number(b.store_id)) await run(env, `UPDATE blog_posts SET store_id=? WHERE id=?`, Number(b.store_id), id);
   return getBlog(env, id);
 }
 
@@ -939,7 +945,17 @@ async function blogAction(env, id, b) {
       if (submitting) await set(`status='drafted'`);
       else {
         await set(`status='draft_approved', draft_approved_at=datetime('now'), rejection_reason=NULL, reminder_sent_at=NULL, change_note=NULL`);
-        if (canSendToSite(env)) {
+        if (p.store_id) {
+          // A client's Shopify store: the article goes to its blog, visible from the planned date.
+          try {
+            const a = await sendToShopify(env, p, { tz: tz(env), zonedToUtc });
+            await set(`published_url=?, shopify_article_id=?, site_sent_at=datetime('now')`, a.url, a.id);
+            await log(env, { blog_post_id: id, step: 'sent_to_shopify', detail: a.url + a.note });
+          } catch (e) {
+            await set(`status='drafted', draft_approved_at=NULL`);
+            throw bad(`Not approved: ${e.message}`);
+          }
+        } else if (canSendToSite(env)) {
           const url = await sendToSite(env, p, 'published', localDate(new Date(), tz(env)));
           await set(`published_url=?, site_sent_at=datetime('now')`, url);
           await log(env, { blog_post_id: id, step: 'sent_to_site', detail: url });
@@ -949,7 +965,7 @@ async function blogAction(env, id, b) {
     }
     case 'request_changes': {
       need(['drafted', 'draft_approved'], 'request changes to');
-      if (p.site_sent_at && canSendToSite(env)) { await sendToSite(env, p, 'review', localDate(new Date(), tz(env))); await set(`site_sent_at=NULL, published_url=NULL`); }
+      if (p.store_id && p.shopify_article_id) { await hideOnShopify(env, p); await set(`site_sent_at=NULL`); } else if (p.site_sent_at && canSendToSite(env)) { await sendToSite(env, p, 'review', localDate(new Date(), tz(env))); await set(`site_sent_at=NULL, published_url=NULL`); }
       const note = str(b.note, 2000);
       if (!note) throw bad('Say what to change.');
       await set(`status='changes_requested', change_note=?, draft_approved_at=NULL, reminder_sent_at=NULL`, note);
@@ -957,7 +973,7 @@ async function blogAction(env, id, b) {
     }
     case 'back_to_draft':
       need(['drafted', 'draft_approved', 'changes_requested'], 'reopen');
-      if (p.site_sent_at && canSendToSite(env)) { await sendToSite(env, p, 'review', localDate(new Date(), tz(env))); await set(`site_sent_at=NULL, published_url=NULL`); }
+      if (p.store_id && p.shopify_article_id) { await hideOnShopify(env, p); await set(`site_sent_at=NULL`); } else if (p.site_sent_at && canSendToSite(env)) { await sendToSite(env, p, 'review', localDate(new Date(), tz(env))); await set(`site_sent_at=NULL, published_url=NULL`); }
       await set(`status='topic_approved', draft_approved_at=NULL, reminder_sent_at=NULL`);
       break;
     case 'mark_published': {
@@ -970,7 +986,7 @@ async function blogAction(env, id, b) {
     }
     case 'reject':
       need(['idea', 'topic_approved', 'drafted', 'draft_approved', 'changes_requested', 'on_hold'], 'reject');
-      if (p.site_sent_at && canSendToSite(env)) { await sendToSite(env, p, 'review', localDate(new Date(), tz(env))); await set(`site_sent_at=NULL, published_url=NULL`); }
+      if (p.store_id && p.shopify_article_id) { await hideOnShopify(env, p); await set(`site_sent_at=NULL`); } else if (p.site_sent_at && canSendToSite(env)) { await sendToSite(env, p, 'review', localDate(new Date(), tz(env))); await set(`site_sent_at=NULL, published_url=NULL`); }
       await set(`status='rejected', rejection_reason=?`, str(b.reason, 1000));
       break;
     case 'hold':
@@ -1052,13 +1068,13 @@ async function saveCluster(env, id, b) {
   const pillar = str(b.pillar_url, 500);
   if (pillar && !/^https?:\/\//i.test(pillar)) throw bad('Pillar URL must start with https://');
   if (id) {
-    const r = await run(env, `UPDATE clusters SET name=?, pillar_url=?, keywords=?, notes=? WHERE id=?`,
-      name, pillar, str(b.keywords, 2000), str(b.notes, 2000), id);
+    const r = await run(env, `UPDATE clusters SET name=?, pillar_url=?, keywords=?, notes=?, store_id=? WHERE id=?`,
+      name, pillar, str(b.keywords, 2000), str(b.notes, 2000), Number(b.store_id) || null, id);
     if (!r.meta.changes) throw bad('Cluster not found', 404);
     return { ok: true, id };
   }
-  const r = await run(env, `INSERT INTO clusters (name, pillar_url, keywords, notes) VALUES (?, ?, ?, ?)`,
-    name, pillar, str(b.keywords, 2000), str(b.notes, 2000));
+  const r = await run(env, `INSERT INTO clusters (name, pillar_url, keywords, notes, store_id) VALUES (?, ?, ?, ?, ?)`,
+    name, pillar, str(b.keywords, 2000), str(b.notes, 2000), Number(b.store_id) || null);
   return { ok: true, id: r.meta.last_row_id };
 }
 

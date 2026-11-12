@@ -169,3 +169,15 @@ details.cl-new>summary{cursor:pointer;font-weight:700;color:var(--forest);margin
   .gq-review{background:#fffbef}
 }
 @media (prefers-reduced-motion:reduce){.ct-day{transition:none}}
+/* Shopify stores */
+.st-card{background:var(--card,#fffdf8);border:1px solid var(--line);border-radius:18px;padding:16px 18px;margin:0 0 14px}
+.st-card h2{margin:0;font-size:24px}
+.st-h{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.st-acts{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin:6px 0}
+.st-form{display:grid;gap:10px;margin-top:10px}
+.st-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.st-grid label,.st-blogs label{display:grid;gap:4px;font-size:13px;font-weight:700}
+.st-how{margin-top:12px;font-size:14px}.st-how ol{padding-left:20px}
+.gq-store{max-width:170px;font:inherit;font-size:13px}
+.st-form input,.st-blogs select{padding:8px 10px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff}
+.st-form>.btn{justify-self:start}
